@@ -1,0 +1,9 @@
+name: Rutilea
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - langchain
+  - pip:
+    - customtkinter
