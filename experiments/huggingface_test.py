@@ -18,7 +18,9 @@ prompt = PromptTemplate(template=template, input_variables=["question"])
 repo_id = "google/flan-t5-xxl"  # See https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads for some other options
 
 # Flan by Google
-repo_id = "google/flan-t5-xxl"  # See https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads for some other options
+# repo_id = "google/flan-t5-xxl"  # See https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads for some other options
+# repo_id = "Vision-CAIR/MiniGPT-4"
+repo_id = "databricks/dolly-v2-3b"
 llm = HuggingFaceHub(
     repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_length": 64}
 )
