@@ -5,6 +5,6 @@ channels:
 dependencies:
   - python
   - langchain
-  - tk
+  - huggingface_hub
   - pip:
     - customtkinter
