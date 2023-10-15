@@ -6,5 +6,7 @@ dependencies:
   - python
   - langchain
   - huggingface_hub
+  - pillow
+  - transformers
   - pip:
     - customtkinter
