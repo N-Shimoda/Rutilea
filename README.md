@@ -4,6 +4,7 @@ Developing an application that uses LLM to select music appropriate to the atmos
 
 ## Files & Directories
 - `main.py` : Toplevel of application.
+- `environment.yml` : Requirements for conda environment.
 
 ## Plan of Development
 1. 単一画像でのビュー完成
