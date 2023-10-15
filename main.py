@@ -35,10 +35,12 @@ class App(ctk.CTk):
             for obj in children:
                 obj.destroy()
 
+        # ---- LEFT frame ----
         # button
-        self.upload_button = ctk.CTkButton(self.frame_left, text="+", command=self.upload_image)
+        self.upload_button = ctk.CTkButton(self.frame_left, text="+", command=self._upload_image)
         self.upload_button.pack(side="bottom", anchor="e")
 
+        # ---- RIGHT frame ----
         # image
         my_image = ctk.CTkImage(
             light_image=self.img,
@@ -48,7 +50,7 @@ class App(ctk.CTk):
         image_label.pack(expand=True, anchor="center")
 
 
-    def upload_image(self):
+    def _upload_image(self):
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg")]) 
         print(file_path)
         self.img = Image.open(file_path)
