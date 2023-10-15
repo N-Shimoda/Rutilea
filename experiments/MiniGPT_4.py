@@ -18,7 +18,8 @@ Answer: Let's think step by step."""
 prompt = PromptTemplate(template=template, input_variables=["question"])
 
 # Flan by Google
-repo_id = "google/flan-t5-xxl"  # See https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads for some other options
+repo_id = "Vision-CAIR/MiniGPT-4"  # See https://huggingface.co/Vision-CAIR/MiniGPT-4
+# repo_id = "microsoft/visual_chatgpt"
 llm = HuggingFaceHub(
     repo_id=repo_id,
     model_kwargs={"temperature": 0.5, "max_length": 64}

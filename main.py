@@ -22,6 +22,6 @@ class App(ctk.CTk):
 
 if __name__ == "__main__":
 
-    ctk.set_appearance_mode("Dark")
+    # ctk.set_appearance_mode("Dark")
     app = App()
     app.mainloop()
