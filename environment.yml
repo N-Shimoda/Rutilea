@@ -7,5 +7,6 @@ dependencies:
   - langchain
   - huggingface_hub
   - pillow
+  - spotipy
   - pip:
     - customtkinter
