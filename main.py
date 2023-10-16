@@ -7,13 +7,16 @@ class App(ctk.CTk):
 
     def __init__(self):
 
+        # ---- Debugging ----
+        self.verbose = False
+        self.i = 0
+
         # ---- Root ----
         super().__init__()
         self.geometry("560x560")
         self.title("Scenery sommelier")
         self.img = Image.open("img/suits_dining_scene.jpg")
 
-        self.i = 0
         self.need_resize = False
         self.bind("<Configure>", self._configure_Cb)
         self.bind("<Enter>", self._enter_Cb)
@@ -21,7 +24,8 @@ class App(ctk.CTk):
         # ---- Children ----
         self.create_menubar()
         self.create_frames()
-        self.create_widgets()
+        self.create_left_widgets()
+        self.create_right_widgets()
 
     
     def create_menubar(self):
@@ -42,19 +46,19 @@ class App(ctk.CTk):
         self.frame_right.pack(side="right", expand=True, fill="both")
         
 
-    def create_widgets(self):
-
-        # destroy current objects in each frame
-        frames = [obj for obj in self.winfo_children() if type(obj)==ctk.CTkFrame]  # list of frames
-        for frame in frames:
-            children = frame.winfo_children()
-            for obj in children:
-                obj.destroy()
-
+    def create_left_widgets(self):
         # ---- LEFT frame ----
         # button
         self.upload_button = ctk.CTkButton(self.frame_left, text="+", command=self._upload_image)
         self.upload_button.pack(side="bottom", anchor="e")
+    
+
+    def create_right_widgets(self):
+
+        # destroy current objects in each frame
+        children = self.frame_right.winfo_children()
+        for obj in children:
+            obj.destroy()
 
         # ---- RIGHT frame ----
         # image
@@ -72,7 +76,7 @@ class App(ctk.CTk):
 
         if file_path:
             self.img = Image.open(file_path)
-            self.create_widgets()
+            self.create_right_widgets()
 
 
     def _resized_image_size(self) -> tuple:
@@ -94,22 +98,19 @@ class App(ctk.CTk):
     def _configure_Cb(self, e):
         
         if not self.need_resize:
-            self.i = self.i + 1
             self.need_resize = True
-            # print(type(e))
-            # print(e)
-            print("Callback {}".format(self.i))
+            if self.verbose:
+                self.i = self.i + 1
+                print("Callback {}".format(self.i))
 
     
     def _enter_Cb(self, e):
 
-        # print(type(e))
-        # print(e)
-
         if self.need_resize:
-            print("Resized")
+            if self.verbose:
+                print("Resized")
             self.need_resize = False
-            self.create_widgets()
+            self.create_right_widgets()
 
 
 if __name__ == "__main__":
