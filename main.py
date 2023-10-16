@@ -34,7 +34,12 @@ class App(ctk.CTk):
         
         self.menubar = tk.Menu(self)
         self.menu_view = tk.Menu(self.menubar)
+        self.menu_file = tk.Menu(self.menubar)
         self.menubar.add_cascade(label="View", menu=self.menu_view)
+        self.menubar.add_cascade(label="File", menu=self.menu_file)
+
+        # `file`
+        self.menu_file.add_command(label="Open image", command=self._upload_image, accelerator="Cmd+O")
         
         self.config(menu=self.menubar)
 
