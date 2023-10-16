@@ -1,7 +1,7 @@
 
 import customtkinter as ctk
 import tkinter as tk
-from PIL import Image
+from PIL import Image, ImageTk
 
 class App(ctk.CTk):
 
@@ -12,6 +12,11 @@ class App(ctk.CTk):
         self.geometry("560x560")
         self.title("Scenery sommelier")
         self.img = Image.open("img/suits_dining_scene.jpg")
+
+        self.i = 0
+        self.need_resize = False
+        self.bind("<Configure>", self._configure_Cb)
+        self.bind("<Enter>", self._enter_Cb)
 
         # ---- Children ----
         self.create_menubar()
@@ -55,7 +60,7 @@ class App(ctk.CTk):
         # image
         my_image = ctk.CTkImage(
             light_image=self.img,
-            size = self._resized_image_size()
+            size = self._resized_image_size(),
         )
         image_label = ctk.CTkLabel(self.frame_right, image=my_image, text="")    # display image with a CTkLabel
         image_label.pack(expand=True, anchor="center")
@@ -84,7 +89,28 @@ class App(ctk.CTk):
 
         scale = min(window_width/image_width, window_height/image_height)
         return (scale*image_width, scale*image_height)
+
+
+    def _configure_Cb(self, e):
+        
+        if not self.need_resize:
+            self.i = self.i + 1
+            self.need_resize = True
+            # print(type(e))
+            # print(e)
+            print("Callback {}".format(self.i))
+
     
+    def _enter_Cb(self, e):
+
+        # print(type(e))
+        # print(e)
+
+        if self.need_resize:
+            print("Resized")
+            self.need_resize = False
+            self.create_widgets()
+
 
 if __name__ == "__main__":
 
