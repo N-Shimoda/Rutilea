@@ -1,5 +1,6 @@
 
 import customtkinter as ctk
+import tkinter as tk
 from PIL import Image
 
 class App(ctk.CTk):
@@ -8,19 +9,29 @@ class App(ctk.CTk):
 
         # ---- Root ----
         super().__init__()
-        # self.geometry("300x360")
+        self.geometry("560x560")
         self.title("Scenery sommelier")
         self.img = Image.open("img/suits_dining_scene.jpg")
 
         # ---- Children ----
+        self.create_menubar()
         self.create_frames()
         self.create_widgets()
+
+    
+    def create_menubar(self):
+        
+        self.menubar = tk.Menu(self)
+        self.menu_view = tk.Menu(self.menubar)
+        self.menubar.add_cascade(label="View", menu=self.menu_view)
+        
+        self.config(menu=self.menubar)
 
 
     def create_frames(self):
 
-        self.frame_left = ctk.CTkFrame(self, fg_color="white")
-        self.frame_right = ctk.CTkFrame(self, fg_color="cyan")
+        self.frame_left = ctk.CTkFrame(self, fg_color="gray21")
+        self.frame_right = ctk.CTkFrame(self)
 
         self.frame_left.pack(side="left", fill="y")
         self.frame_right.pack(side="right", expand=True, fill="both")
@@ -44,19 +55,36 @@ class App(ctk.CTk):
         # image
         my_image = ctk.CTkImage(
             light_image=self.img,
-            size = tuple(item * 0.2 for item in self.img.size)
+            size = self._resized_image_size()
         )
-        image_label = ctk.CTkLabel(self.frame_right, image=my_image, text="Selected image:")    # display image with a CTkLabel
+        image_label = ctk.CTkLabel(self.frame_right, image=my_image, text="")    # display image with a CTkLabel
         image_label.pack(expand=True, anchor="center")
 
 
     def _upload_image(self):
-        file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg")]) 
+        file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
         print(file_path)
-        self.img = Image.open(file_path)
 
-        self.create_widgets()
+        if file_path:
+            self.img = Image.open(file_path)
+            self.create_widgets()
 
+
+    def _resized_image_size(self) -> tuple:
+        """
+        イメージを何倍に縮小・拡大して表示するかを求める関数。リサイズされた画像のサイズを返す。
+        """        
+        image_width, image_height = self.img.size
+        self.update_idletasks()     # for avoiding initial error that window size loaded as (1,1)
+        window_width = self.frame_right.winfo_width()
+        window_height = self.frame_right.winfo_height()
+
+        # print("image size: {}".format(self.img.size))
+        # print("window size: {}".format((window_width, window_height)))
+
+        scale = min(window_width/image_width, window_height/image_height)
+        return (scale*image_width, scale*image_height)
+    
 
 if __name__ == "__main__":
 
