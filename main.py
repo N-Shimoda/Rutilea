@@ -1,7 +1,7 @@
 
 import customtkinter as ctk
 import tkinter as tk
-from PIL import Image, ImageTk
+from PIL import Image
 
 class App(ctk.CTk):
 
@@ -54,20 +54,32 @@ class App(ctk.CTk):
     
 
     def create_right_widgets(self):
-
         # destroy current objects in each frame
         children = self.frame_right.winfo_children()
         for obj in children:
             obj.destroy()
 
         # ---- RIGHT frame ----
-        # image
+        # display image with a CTkLabel
         my_image = ctk.CTkImage(
             light_image=self.img,
             size = self._resized_image_size(),
         )
-        image_label = ctk.CTkLabel(self.frame_right, image=my_image, text="")    # display image with a CTkLabel
-        image_label.pack(expand=True, anchor="center")
+        image_label = ctk.CTkLabel(
+            self.frame_right,
+            image=my_image,
+            text="",
+            bg_color="white"
+        ) 
+        image_label.pack(expand=True)
+
+        # label for description
+        desc_label = ctk.CTkLabel(
+            self.frame_right,
+            text='Dining scene from "SUITS".',
+            anchor="e"
+        )
+        desc_label.pack(fill="x")
 
 
     def _upload_image(self):
