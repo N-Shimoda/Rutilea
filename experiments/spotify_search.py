@@ -14,10 +14,11 @@ spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
 if len(sys.argv) > 1:
     name = ' '.join(sys.argv[1:])
 else:
-    name = '勇者'
+    name = 'Beethoven Symphony No.7'
 
 results = spotify.search(q='track:'+name, type='track')
-# target_dict = results["tracks"]
+target_dict = results["tracks"]
+print(target_dict)
 
 # print(target_dict)
 # print(colorize(type(target_dict), 41))
