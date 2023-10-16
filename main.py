@@ -1,6 +1,7 @@
 
 import customtkinter as ctk
 import tkinter as tk
+import webbrowser
 from PIL import Image
 
 class App(ctk.CTk):
@@ -8,18 +9,19 @@ class App(ctk.CTk):
     def __init__(self):
 
         # ---- Debugging ----
-        self.verbose = False
+        self.verbose = True
         self.i = 0
 
         # ---- Root ----
         super().__init__()
         self.geometry("560x560")
-        self.title("Scenery sommelier")
+        self.title("Music from image")
         self.img = Image.open("img/suits_dining_scene.jpg")
+        self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
 
         self.need_resize = False
-        self.bind("<Configure>", self._configure_Cb)
-        self.bind("<Enter>", self._enter_Cb)
+        # self.bind("<Configure>", self._configure_Cb)
+        # self.bind("<Enter>", self._enter_Cb)
 
         # ---- Children ----
         self.create_menubar()
@@ -81,6 +83,14 @@ class App(ctk.CTk):
         )
         desc_label.pack(fill="x")
 
+        # Spotify button
+        self.spotify_button = ctk.CTkButton(
+            self.frame_right,
+            text="Spotify",
+            command=self._open_spotify
+        )
+        self.spotify_button.pack()
+
 
     def _upload_image(self):
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
@@ -123,6 +133,12 @@ class App(ctk.CTk):
                 print("Resized")
             self.need_resize = False
             self.create_right_widgets()
+
+
+    def _open_spotify(self):
+        if self.verbose:
+            print("play!")
+        webbrowser.open(url=self.spotify_url)
 
 
 if __name__ == "__main__":
