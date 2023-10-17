@@ -2,8 +2,9 @@
 import customtkinter as ctk
 import tkinter as tk
 import webbrowser
-import time
+import urllib.request
 from PIL import Image
+import back_process
 
 class App(ctk.CTk):
 
@@ -20,12 +21,18 @@ class App(ctk.CTk):
 
         # ---- Variables ----
         self.picture_file = Image.open("img/suits_dining_scene.jpg")
-        self.album_file = Image.open("img/nocturns.jpg")
-        self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
         self.pad_size = 8
+        self.corner_radius = 12
         self.font_family = "Helvetica"
-
         self.picture_img = None     # for avoiding initial error when activating App.
+
+        # setting initial music as '勇者 by YOASOBI' 
+        self.spotify_result = {
+            'artwork_url': 'https://i.scdn.co/image/ab67616d0000b273a9f9b6f07b43009f5b0216dc',
+            'track_name': '勇者', 'track_url': 'https://open.spotify.com/album/6L7pjBfP49dh1WYDmHngOO',
+            'artist_name': 'YOASOBI',
+            'artist_url': 'https://open.spotify.com/artist/64tJ2EAv1R6UaZqc4iOCyj'
+            }
 
         # ---- Children ----
         self.create_menubar()
@@ -101,14 +108,20 @@ class App(ctk.CTk):
             self.frame_top,
             image=self.picture_img,
             text="",
-            corner_radius=12,
+            corner_radius=self.corner_radius,
             fg_color="black",
         ) 
         image_label.pack(expand=True, padx=self.pad_size)
 
 
     def create_middle_widgets(self):
-        # ---- MIDDLE frame ----
+
+        # Upadate artwork data
+        self.dst_path = "img/artwork.jpg"
+        urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
+        self.album_file = Image.open(self.dst_path)
+
+        # ---- Album artwork ----
         self.album_img = ctk.CTkImage(
             light_image=self.album_file,
             size=(160,160)
@@ -117,19 +130,21 @@ class App(ctk.CTk):
             self.frame_middle,
             image=self.album_img,
             text="",
-            corner_radius=12,
+            corner_radius=self.corner_radius,
             fg_color="black"
         )
+
+        # ---- Name of track & artist ----
         title_label = ctk.CTkLabel(
             self.frame_middle,
-            text='Chopin: Nocturns',
+            text=self.spotify_result["track_name"],
             font=ctk.CTkFont(family=self.font_family, size=20),
             text_color="black",
             anchor="w"
         )
         artist_label = ctk.CTkLabel(
             self.frame_middle,
-            text="ルービンシュタイン",
+            text=self.spotify_result["artist_name"],
             font=ctk.CTkFont(family=self.font_family),
             text_color="black",
             anchor="w"
@@ -155,11 +170,21 @@ class App(ctk.CTk):
 
 
     def _upload_image(self):
+
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
         print(file_path)
 
         if file_path:
             self.picture_file = Image.open(file_path)
+
+            # Select a music which best fits to the atmosphere of given image
+            name = back_process.image_to_text(file_path)
+            self.spotify_result = back_process.search_spotify(name)
+
+            # Reload artwork
+            urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
+            self.album_file = Image.open(self.dst_path)
+
             self.create_right_widgets()
 
 
@@ -185,8 +210,8 @@ class App(ctk.CTk):
 
     def _open_spotify(self):
         if self.verbose:
-            print("Opening Spotify.")
-        webbrowser.open(url=self.spotify_url)
+            print("Opening Spotify...")
+        webbrowser.open(url=self.spotify_result["track_url"])
 
 
     def _configure_Cb(self, e):
