@@ -17,13 +17,15 @@ class App(ctk.CTk):
         super().__init__()
         self.geometry("560x560")
         self.title("Music from image")
-        self.bind("<Configure>", self._configure_Cb)
 
         # ---- Variables ----
         self.picture_file = Image.open("img/suits_dining_scene.jpg")
         self.album_file = Image.open("img/nocturns.jpg")
         self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
         self.pad_size = 8
+        self.font_family = "Helvetica"
+
+        self.picture_img = None     # for avoiding initial error when activating App.
 
         # ---- Children ----
         self.create_menubar()
@@ -64,6 +66,8 @@ class App(ctk.CTk):
         self.frame_middle.pack(fill="x")
         self.frame_bottom.pack(fill="x")
 
+        self.frame_top.bind("<Configure>", self._configure_Cb)
+
 
     def create_left_widgets(self):
         # ---- LEFT frame ----
@@ -76,7 +80,6 @@ class App(ctk.CTk):
 
         # destroy current objects in RIGHT frame
         frames = [obj for obj in self.frame_right.winfo_children() if type(obj)==ctk.CTkFrame]  # list of frames
-        print(len(frames))
         for frame in frames:
             children = frame.winfo_children()
             for obj in children:
@@ -117,25 +120,39 @@ class App(ctk.CTk):
             corner_radius=12,
             fg_color="black"
         )
-        desc_label = ctk.CTkLabel(
+        title_label = ctk.CTkLabel(
             self.frame_middle,
-            text='Dining scene from "SUITS".',
-            anchor="e",
+            text='Chopin: Nocturns',
+            font=ctk.CTkFont(family=self.font_family, size=20),
+            text_color="black",
+            anchor="w"
+        )
+        artist_label = ctk.CTkLabel(
+            self.frame_middle,
+            text="ルービンシュタイン",
+            font=ctk.CTkFont(family=self.font_family),
+            text_color="black",
+            anchor="w"
         )
 
-        album_artwork.pack(side="left", expand=True, pady=8)
-        desc_label.pack()
+        # Spotify button
+        self.spotify_button = ctk.CTkButton(
+            self.frame_middle,
+            text="Spotify",
+            command=self._open_spotify,
+        )
+
+        album_artwork.pack(side="left", padx=self.pad_size, pady=self.pad_size)
+        title_label.pack(anchor="w")
+        artist_label.pack(anchor="w")
+        self.spotify_button.pack(anchor="w")
 
 
     def create_bottom_widgets(self):
         # ---- BOTTOM frame ----
-        # Spotify button
-        self.spotify_button = ctk.CTkButton(
-            self.frame_bottom,
-            text="Spotify",
-            command=self._open_spotify
-        )
-        self.spotify_button.pack(padx=self.pad_size, pady=self.pad_size)
+        
+        label = ctk.CTkLabel(self.frame_bottom, text="Powered by Spotify")
+        label.pack()
 
 
     def _upload_image(self):
@@ -169,10 +186,11 @@ class App(ctk.CTk):
 
     def _configure_Cb(self, e):
         # update the size of image
-        self.picture_img.configure(size=self._resized_image_size())
-        if self.verbose:
-            self.i += 1
-            print("{}th Configure Callback".format(self.i))
+        if self.picture_img is not None:
+            self.picture_img.configure(size=self._resized_image_size())
+            if self.verbose:
+                self.i += 1
+                print("{}th Configure Callback".format(self.i))
 
 
     def _open_spotify(self):
