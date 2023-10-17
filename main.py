@@ -19,9 +19,11 @@ class App(ctk.CTk):
         self.title("Music from image")
         self.bind("<Configure>", self._configure_Cb)
 
+        # ---- Variables ----
         self.picture_file = Image.open("img/suits_dining_scene.jpg")
         self.album_file = Image.open("img/nocturns.jpg")
         self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
+        self.pad_size = 8
 
         # ---- Children ----
         self.create_menubar()
@@ -99,7 +101,7 @@ class App(ctk.CTk):
             corner_radius=12,
             fg_color="black",
         ) 
-        image_label.pack(expand=True, padx=8)
+        image_label.pack(expand=True, padx=self.pad_size)
 
 
     def create_middle_widgets(self):
@@ -133,7 +135,7 @@ class App(ctk.CTk):
             text="Spotify",
             command=self._open_spotify
         )
-        self.spotify_button.pack(padx=8, pady=8)
+        self.spotify_button.pack(padx=self.pad_size, pady=self.pad_size)
 
 
     def _upload_image(self):
