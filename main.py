@@ -17,14 +17,11 @@ class App(ctk.CTk):
         super().__init__()
         self.geometry("560x560")
         self.title("Music from image")
+        self.bind("<Configure>", self._configure_Cb)
+
         self.picture_file = Image.open("img/suits_dining_scene.jpg")
         self.album_file = Image.open("img/nocturns.jpg")
         self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
-
-        self.need_resize = False
-        self.bind("<Configure>", self._configure_Cb)
-
-        # self.bind("<Enter>", self._enter_Cb)
 
         # ---- Children ----
         self.create_menubar()
@@ -136,8 +133,8 @@ class App(ctk.CTk):
             text="Spotify",
             command=self._open_spotify
         )
-        self.spotify_button.pack()
-        
+        self.spotify_button.pack(padx=8, pady=8)
+
 
     def _upload_image(self):
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
@@ -174,15 +171,6 @@ class App(ctk.CTk):
         if self.verbose:
             self.i += 1
             print("{}th Configure Callback".format(self.i))
-
-    
-    def _enter_Cb(self, e):
-
-        if self.need_resize:
-            if self.verbose:
-                print("Resized")
-            self.need_resize = False
-            self.create_right_widgets()
 
 
     def _open_spotify(self):
