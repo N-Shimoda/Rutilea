@@ -2,6 +2,7 @@
 import customtkinter as ctk
 import tkinter as tk
 import webbrowser
+import time
 from PIL import Image
 
 class App(ctk.CTk):
@@ -91,17 +92,16 @@ class App(ctk.CTk):
             self.frame_top,
             image=self.my_image,
             text="",
-            corner_radius=10,
-            bg_color="red",
-            fg_color="white"
+            corner_radius=12,
+            fg_color="black",
         ) 
-        image_label.pack(expand=True)
+        image_label.pack(expand=True, padx=8)
 
         # ---- MIDDLE frame ----
         desc_label = ctk.CTkLabel(
             self.frame_middle,
             text='Dining scene from "SUITS".',
-            anchor="e"
+            anchor="e",
         )
         desc_label.pack(fill="x")
 
@@ -138,6 +138,8 @@ class App(ctk.CTk):
             print("image size: {}".format(self.img.size))
             print("window size: {}".format((window_width, window_height)))
             print("resizing image (scale = {})".format(scale))
+
+        # time.sleep(0.001)
 
         return (scale*image_width, scale*image_height)
 
