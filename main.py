@@ -91,7 +91,9 @@ class App(ctk.CTk):
             self.frame_top,
             image=self.my_image,
             text="",
-            bg_color="white"
+            corner_radius=10,
+            bg_color="red",
+            fg_color="white"
         ) 
         image_label.pack(expand=True)
 
