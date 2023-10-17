@@ -150,7 +150,6 @@ class App(ctk.CTk):
 
     def create_bottom_widgets(self):
         # ---- BOTTOM frame ----
-        
         label = ctk.CTkLabel(self.frame_bottom, text="Powered by Spotify")
         label.pack()
 
@@ -184,6 +183,12 @@ class App(ctk.CTk):
         return (scale*image_width, scale*image_height)
 
 
+    def _open_spotify(self):
+        if self.verbose:
+            print("Opening Spotify.")
+        webbrowser.open(url=self.spotify_url)
+
+
     def _configure_Cb(self, e):
         # update the size of image
         if self.picture_img is not None:
@@ -191,12 +196,6 @@ class App(ctk.CTk):
             if self.verbose:
                 self.i += 1
                 print("{}th Configure Callback".format(self.i))
-
-
-    def _open_spotify(self):
-        if self.verbose:
-            print("Opening Spotify.")
-        webbrowser.open(url=self.spotify_url)
 
 
 if __name__ == "__main__":

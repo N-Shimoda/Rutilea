@@ -14,7 +14,7 @@ spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
 if len(sys.argv) > 1:
     name = ' '.join(sys.argv[1:])
 else:
-    name = 'Beethoven Symphony No.7'
+    name = 'Mozart Symphony No.40'
 
 results = spotify.search(q='track:'+name, type='track')
 target_dict = results["tracks"]
@@ -37,3 +37,5 @@ preview_url = results["tracks"]["items"][0]["preview_url"]
 
 print("track URL: {}".format(url))
 print("preview: {}".format(preview_url))
+print("artist name: {}".format(results["tracks"]["items"][0]["album"]["artists"][0]["name"]))
+print("artist URL: {}".format(results["tracks"]["items"][0]["album"]["artists"][0]["external_urls"]["spotify"]))
