@@ -17,7 +17,8 @@ class App(ctk.CTk):
         super().__init__()
         self.geometry("560x560")
         self.title("Music from image")
-        self.img = Image.open("img/suits_dining_scene.jpg")
+        self.picture_file = Image.open("img/suits_dining_scene.jpg")
+        self.album_file = Image.open("img/nocturns.jpg")
         self.spotify_url = "https://open.spotify.com/intl-ja/track/4LjIQmt1t6NjpM0tpttzjo"  # 勇者
 
         self.need_resize = False
@@ -82,29 +83,52 @@ class App(ctk.CTk):
             for obj in children:
                 obj.destroy()
 
-        # ---- TOP frame ----
+        self.create_top_widgets()
+        self.create_middle_widgets()
+        self.create_bottom_widgets()
+
+
+    def create_top_widgets(self):
+
         # display image with a CTkLabel
-        self.my_image = ctk.CTkImage(
-            light_image=self.img,
+        self.picture_img = ctk.CTkImage(
+            light_image=self.picture_file,
             size = self._resized_image_size(),
         )
         image_label = ctk.CTkLabel(
             self.frame_top,
-            image=self.my_image,
+            image=self.picture_img,
             text="",
             corner_radius=12,
             fg_color="black",
         ) 
         image_label.pack(expand=True, padx=8)
 
+
+    def create_middle_widgets(self):
         # ---- MIDDLE frame ----
+        self.album_img = ctk.CTkImage(
+            light_image=self.album_file,
+            size=(160,160)
+        )
+        album_artwork = ctk.CTkLabel(
+            self.frame_middle,
+            image=self.album_img,
+            text="",
+            corner_radius=12,
+            fg_color="black"
+        )
         desc_label = ctk.CTkLabel(
             self.frame_middle,
             text='Dining scene from "SUITS".',
             anchor="e",
         )
-        desc_label.pack(fill="x")
 
+        album_artwork.pack(side="left", expand=True, pady=8)
+        desc_label.pack()
+
+
+    def create_bottom_widgets(self):
         # ---- BOTTOM frame ----
         # Spotify button
         self.spotify_button = ctk.CTkButton(
@@ -113,14 +137,14 @@ class App(ctk.CTk):
             command=self._open_spotify
         )
         self.spotify_button.pack()
-
+        
 
     def _upload_image(self):
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
         print(file_path)
 
         if file_path:
-            self.img = Image.open(file_path)
+            self.picture_file = Image.open(file_path)
             self.create_right_widgets()
 
 
@@ -128,14 +152,14 @@ class App(ctk.CTk):
         """
         イメージを何倍に縮小・拡大して表示するかを求める関数。リサイズされた画像のサイズを返す。
         """        
-        image_width, image_height = self.img.size
+        image_width, image_height = self.picture_file.size
         self.update_idletasks()     # for avoiding initial error that window size loaded as (1,1)
         window_width = self.frame_top.winfo_width()
         window_height = self.frame_top.winfo_height()
 
         scale = min(window_width/image_width, window_height/image_height)
         if self.verbose:
-            print("image size: {}".format(self.img.size))
+            print("image size: {}".format(self.picture_file.size))
             print("window size: {}".format((window_width, window_height)))
             print("resizing image (scale = {})".format(scale))
 
@@ -146,7 +170,7 @@ class App(ctk.CTk):
 
     def _configure_Cb(self, e):
         # update the size of image
-        self.my_image.configure(size=self._resized_image_size())
+        self.picture_img.configure(size=self._resized_image_size())
         if self.verbose:
             self.i += 1
             print("{}th Configure Callback".format(self.i))
