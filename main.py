@@ -16,13 +16,13 @@ class App(ctk.CTk):
 
         # ---- Root ----
         super().__init__()
-        self.geometry("560x560")
+        self.geometry("500x750")
         self.title("Music from image")
 
         # ---- Variables ----
         self.picture_file = Image.open("img/suits_dining_scene.jpg")
-        self.pad_size = 8
-        self.corner_radius = 12
+        self.pad_size = 14
+        self.corner_radius = 18
         self.font_family = "Helvetica"
         self.picture_img = None     # for avoiding initial error when activating App.
 
@@ -61,11 +61,12 @@ class App(ctk.CTk):
         self.frame_left = ctk.CTkFrame(self, fg_color="gray21")
         self.frame_right = ctk.CTkFrame(self)
 
-        self.frame_left.pack(side="left", fill="y")
+        # self.frame_left.pack(side="left", fill="y")
         self.frame_right.pack(side="right", expand=True, fill="both")
 
         # ---- RIGHT frame ----
-        self.frame_top = ctk.CTkFrame(self.frame_right, fg_color="cyan")
+        # self.frame_top = ctk.CTkFrame(self.frame_right, fg_color="cyan")
+        self.frame_top = GradientFrame(self.frame_right, "black", "orange")
         self.frame_middle = ctk.CTkFrame(self.frame_right, fg_color="white")
         self.frame_bottom = ctk.CTkFrame(self.frame_right, fg_color="green")
 
@@ -86,7 +87,7 @@ class App(ctk.CTk):
     def create_right_widgets(self):
 
         # destroy current objects in RIGHT frame
-        frames = [obj for obj in self.frame_right.winfo_children() if type(obj)==ctk.CTkFrame]  # list of frames
+        frames = [obj for obj in self.frame_right.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
         for frame in frames:
             children = frame.winfo_children()
             for obj in children:
@@ -110,6 +111,7 @@ class App(ctk.CTk):
             text="",
             corner_radius=self.corner_radius,
             fg_color="black",
+            bg_color="yellow"
         ) 
         image_label.pack(expand=True, padx=self.pad_size)
 
@@ -221,6 +223,39 @@ class App(ctk.CTk):
             if self.verbose:
                 self.i += 1
                 print("{}th Configure Callback".format(self.i))
+
+        # update gradient
+        self.frame_top._draw_gradient(e)
+
+
+class GradientFrame(tk.Canvas):
+    
+    '''A gradient frame which uses a canvas to draw the background'''
+    def __init__(self, parent, color1="red", color2="black", **kwargs):
+        tk.Canvas.__init__(self, parent, **kwargs)
+        self._color1 = color1
+        self._color2 = color2
+        self.bind("<Configure>", self._draw_gradient)
+
+    def _draw_gradient(self, event=None):
+        '''Draw the gradient'''
+        self.delete("gradient")
+        width = self.winfo_width()
+        height = self.winfo_height()
+        limit = width
+        (r1,g1,b1) = self.winfo_rgb(self._color1)
+        (r2,g2,b2) = self.winfo_rgb(self._color2)
+        r_ratio = float(r2-r1) / limit
+        g_ratio = float(g2-g1) / limit
+        b_ratio = float(b2-b1) / limit
+
+        for i in range(limit):
+            nr = int(r1 + (r_ratio * i))
+            ng = int(g1 + (g_ratio * i))
+            nb = int(b1 + (b_ratio * i))
+            color = "#%4.4x%4.4x%4.4x" % (nr,ng,nb)
+            self.create_line(i,0,i,height, tags=("gradient",), fill=color)
+        self.lower("gradient")
 
 
 if __name__ == "__main__":
