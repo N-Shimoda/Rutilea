@@ -46,12 +46,22 @@ class App(ctk.CTk):
 
     def create_frames(self):
 
+        # ---- Define LEFT & RIGHT ----
         self.frame_left = ctk.CTkFrame(self, fg_color="gray21")
         self.frame_right = ctk.CTkFrame(self)
 
         self.frame_left.pack(side="left", fill="y")
         self.frame_right.pack(side="right", expand=True, fill="both")
-        
+
+        # ---- RIGHT frame ----
+        self.frame_top = ctk.CTkFrame(self.frame_right, fg_color="cyan")
+        self.frame_middle = ctk.CTkFrame(self.frame_right, fg_color="white")
+        self.frame_bottom = ctk.CTkFrame(self.frame_right, fg_color="green")
+
+        self.frame_top.pack(expand=True, fill="both")
+        self.frame_middle.pack(fill="x")
+        self.frame_bottom.pack(fill="x")
+
 
     def create_left_widgets(self):
         # ---- LEFT frame ----
@@ -61,36 +71,40 @@ class App(ctk.CTk):
     
 
     def create_right_widgets(self):
-        # destroy current objects in each frame
-        children = self.frame_right.winfo_children()
-        for obj in children:
-            obj.destroy()
+        # destroy current objects in RIGHT frame
+        frames = [obj for obj in self.frame_right.winfo_children() if type(obj)==ctk.CTkFrame]  # list of frames
+        print(len(frames))
+        for frame in frames:
+            children = frame.winfo_children()
+            for obj in children:
+                obj.destroy()
 
-        # ---- RIGHT frame ----
+        # ---- TOP frame ----
         # display image with a CTkLabel
         my_image = ctk.CTkImage(
             light_image=self.img,
             size = self._resized_image_size(),
         )
         image_label = ctk.CTkLabel(
-            self.frame_right,
+            self.frame_top,
             image=my_image,
             text="",
             bg_color="white"
         ) 
         image_label.pack(expand=True)
 
-        # label for description
+        # ---- MIDDLE frame ----
         desc_label = ctk.CTkLabel(
-            self.frame_right,
+            self.frame_middle,
             text='Dining scene from "SUITS".',
             anchor="e"
         )
         desc_label.pack(fill="x")
 
+        # ---- BOTTOM frame ----
         # Spotify button
         self.spotify_button = ctk.CTkButton(
-            self.frame_right,
+            self.frame_bottom,
             text="Spotify",
             command=self._open_spotify
         )
@@ -112,8 +126,8 @@ class App(ctk.CTk):
         """        
         image_width, image_height = self.img.size
         self.update_idletasks()     # for avoiding initial error that window size loaded as (1,1)
-        window_width = self.frame_right.winfo_width()
-        window_height = self.frame_right.winfo_height()
+        window_width = self.frame_top.winfo_width()
+        window_height = self.frame_top.winfo_height()
 
         # print("image size: {}".format(self.img.size))
         # print("window size: {}".format((window_width, window_height)))
@@ -142,7 +156,7 @@ class App(ctk.CTk):
 
     def _open_spotify(self):
         if self.verbose:
-            print("play!")
+            print("Opening Spotify.")
         webbrowser.open(url=self.spotify_url)
 
 

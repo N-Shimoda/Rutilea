@@ -4,9 +4,9 @@ channels:
   - defaults
 dependencies:
   - python
+  - pillow
   - langchain
   - huggingface_hub
-  - pillow
   - spotipy
   - pip:
     - customtkinter
