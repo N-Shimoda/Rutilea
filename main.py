@@ -113,7 +113,7 @@ class App(ctk.CTk):
             fg_color="black",
             bg_color="yellow"
         ) 
-        image_label.pack(expand=True, padx=self.pad_size)
+        image_label.pack(expand=True, padx=self.pad_size, pady=self.pad_size)
 
 
     def create_middle_widgets(self):
