@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 from langchain.agents import initialize_agent
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
-from image_tools import ImageCaptionTool, ObjectDetectionTool
+from src.image_tools import ImageCaptionTool, ObjectDetectionTool
 
 from langchain.output_parsers import NumberedListOutputParser
 
@@ -52,10 +52,21 @@ def image_to_text(image_path: str) -> list:
     print(user_question)
     print(response)
 
-    return response
+    return response_to_list(response)
 
 
-def parser(response: str) -> list:
+def response_to_list(response: str) -> list:
+    """
+    LLMの回答文章を受け取り、そこに記述された数字付き箇条書きの部分のみをリスト化して返す関数。
+
+    Parameter
+    ---------
+    response: str
+
+    Return
+    ------
+    list of music. Each music is represented by str, may contain artist name.
+    """
 
     # output_parser = CommaSeparatedListOutputParser()
     output_parser = NumberedListOutputParser()
@@ -86,8 +97,7 @@ if __name__ == "__main__":
 
     for filename in image_list:
 
-        response = image_to_text(filename)
-        result = parser(response)
+        result = image_to_text(filename)
         print(result)
 
         spec_report.append(len(result))

@@ -6,7 +6,10 @@ dependencies:
   - python
   - pillow
   - langchain
-  - huggingface_hub
+  - pytorch
+  - transformers
+  - huggingface_hub   # Only used in `experiments`
   - spotipy
+  - tkinter
   - pip:
     - customtkinter

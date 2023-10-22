@@ -18,29 +18,34 @@ def search_spotify(name: str) -> tuple:
         return None
     
     else:
+        # Report number of tracks
+        print("{} tracks found in Spotify!".format(results["tracks"]["total"]))
+
+        i = 0
+
         # Artwork, name of track, name of artist
-        artwork_url = results["tracks"]["items"][0]["album"]["images"][0]["url"]    # Usually, 'images' have more than 1 artwork.
+        artwork_url = results["tracks"]["items"][i]["album"]["images"][0]["url"]    # Usually, 'images' have more than 1 artwork.
 
-        track_name = results["tracks"]["items"][0]["album"]["name"]
-        track_URL = results["tracks"]["items"][0]["album"]["external_urls"]["spotify"]
+        track_name = results["tracks"]["items"][i]["album"]["name"]
+        track_URL = results["tracks"]["items"][i]["external_urls"]["spotify"]
+        album_URL = results["tracks"]["items"][i]["album"]["external_urls"]["spotify"]
 
-        artist_name = results["tracks"]["items"][0]["album"]["artists"][0]["name"]
-        artist_URL = results["tracks"]["items"][0]["album"]["artists"][0]["external_urls"]["spotify"]
+        artist_name = results["tracks"]["items"][i]["album"]["artists"][0]["name"]
+        artist_URL = results["tracks"]["items"][i]["album"]["artists"][0]["external_urls"]["spotify"]
 
         result = {
             "artwork_url": artwork_url,
             "track_name": track_name,
             "track_url": track_URL,
+            "album_url": album_URL,
             "artist_name": artist_name,
             "artist_url": artist_URL
-            }
-        
-        print(result)
+        }
 
         return result
 
 
 if __name__ == "__main__":
 
-    info = search_spotify("Romantic Dinner")
+    info = search_spotify("Canon in D by Johann Pachelbel")
     print(info)

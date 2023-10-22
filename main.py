@@ -21,7 +21,7 @@ class App(ctk.CTk):
         self.title("Music from image")
 
         # ---- Variables ----
-        self.picture_file = Image.open("img/suits_dining_scene.jpg")
+        self.picture_file = Image.open("/Users/naoki/Desktop/img/suits_dining_scene.jpg")
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
@@ -30,10 +30,12 @@ class App(ctk.CTk):
         # setting initial music as '勇者 by YOASOBI' 
         self.spotify_result = {
             'artwork_url': 'https://i.scdn.co/image/ab67616d0000b273a9f9b6f07b43009f5b0216dc',
-            'track_name': '勇者', 'track_url': 'https://open.spotify.com/album/6L7pjBfP49dh1WYDmHngOO',
+            'track_name': '勇者',
+            'track_url': 'https://open.spotify.com/track/4LjIQmt1t6NjpM0tpttzjo',
+            'album_url': 'https://open.spotify.com/album/6L7pjBfP49dh1WYDmHngOO',
             'artist_name': 'YOASOBI',
             'artist_url': 'https://open.spotify.com/artist/64tJ2EAv1R6UaZqc4iOCyj'
-            }
+        }
 
         # ---- Children ----
         self.create_menubar()
@@ -181,14 +183,17 @@ class App(ctk.CTk):
             self.picture_file = Image.open(file_path)
 
             # Select a music which best fits to the atmosphere of given image
-            name = image_to_text(file_path)
-            self.spotify_result = search_spotify(name)
+            music_list = image_to_text(file_path)
+            if len(music_list) > 0:
+                self.spotify_result = search_spotify(music_list[0])
 
-            # Reload artwork
-            urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
-            self.album_file = Image.open(self.dst_path)
+                # Reload artwork
+                urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
+                self.album_file = Image.open(self.dst_path)
 
-            self.create_right_widgets()
+                self.create_right_widgets()
+            else:
+                print("No tracks found, cancel view updation.")
 
 
     def _resized_image_size(self) -> tuple:
