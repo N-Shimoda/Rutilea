@@ -4,7 +4,8 @@ import tkinter as tk
 import webbrowser
 import urllib.request
 from PIL import Image
-import back_process
+from src.spotify import search_spotify
+from src.visual_LLM import image_to_text
 
 class App(ctk.CTk):
 
@@ -180,8 +181,8 @@ class App(ctk.CTk):
             self.picture_file = Image.open(file_path)
 
             # Select a music which best fits to the atmosphere of given image
-            name = back_process.image_to_text(file_path)
-            self.spotify_result = back_process.search_spotify(name)
+            name = image_to_text(file_path)
+            self.spotify_result = search_spotify(name)
 
             # Reload artwork
             urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
