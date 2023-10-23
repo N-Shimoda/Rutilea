@@ -138,51 +138,13 @@ class App(ctk.CTk):
         urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
         self.album_file = Image.open(self.dst_path)
 
-        self.create_music_view(tab=self.tabview.tab("Music 1"))
-
-    
-    def create_music_view(self, tab):
-
-        # ---- Album artwork ----
-        self.album_img = ctk.CTkImage(
-            light_image=self.album_file,
-            size=(160,160)
+        # ---- Music View ----
+        music1 = MusicView(
+            master=self.tabview.tab("Music 1"),
+            album_file=self.album_file,
+            spotify_result=self.spotify_result
         )
-        album_artwork = ctk.CTkLabel(
-            tab,
-            image=self.album_img,
-            text="",
-            corner_radius=self.corner_radius,
-            fg_color="black"
-        )
-
-        # ---- Name of track & artist ----
-        title_label = ctk.CTkLabel(
-            tab,
-            text=self.spotify_result["track_name"],
-            font=ctk.CTkFont(family=self.font_family, size=20),
-            text_color="black",
-            anchor="w"
-        )
-        artist_label = ctk.CTkLabel(
-            tab,
-            text=self.spotify_result["artist_name"],
-            font=ctk.CTkFont(family=self.font_family),
-            text_color="black",
-            anchor="w"
-        )
-
-        # Spotify button
-        self.spotify_button = ctk.CTkButton(
-            tab,
-            text="Spotify",
-            command=self._open_spotify,
-        )
-
-        album_artwork.pack(side="left", padx=self.pad_size, pady=self.pad_size)
-        title_label.pack(anchor="w")
-        artist_label.pack(anchor="w")
-        self.spotify_button.pack(anchor="w")
+        music1.pack()
 
 
     def create_bottom_widgets(self):
@@ -255,12 +217,6 @@ class App(ctk.CTk):
         return (scale*image_width, scale*image_height)
 
 
-    def _open_spotify(self):
-        if self.verbose:
-            print("Opening Spotify...")
-        webbrowser.open(url=self.spotify_result["track_url"])
-
-
     def _configure_Cb(self, e):
         # update the size of image
         if self.picture_img is not None:
@@ -271,6 +227,67 @@ class App(ctk.CTk):
 
         # update gradient
         self.frame_top._draw_gradient(e)
+
+
+
+class MusicView(ctk.CTkFrame):
+    
+    def __init__(self, master=None, album_file=None, spotify_result=None):
+        super().__init__(master)
+
+        self.verbose = True
+        self.pad_size = 14
+        self.corner_radius = 18
+        self.font_family = "Helvetica"
+
+        self.spotify_result = spotify_result
+
+        # ---- Album artwork ----
+        self.album_img = ctk.CTkImage(
+            light_image=album_file,
+            size=(160,160)
+        )
+        album_artwork = ctk.CTkLabel(
+            master,
+            image=self.album_img,
+            text="",
+            # corner_radius=self.corner_radius,
+            fg_color="black"
+        )
+
+        # ---- Name of track & artist ----
+        title_label = ctk.CTkLabel(
+            master,
+            text=spotify_result["track_name"],
+            font=ctk.CTkFont(family=self.font_family, size=20),
+            text_color="black",
+            anchor="w"
+        )
+        artist_label = ctk.CTkLabel(
+            master,
+            text=spotify_result["artist_name"],
+            font=ctk.CTkFont(family=self.font_family),
+            text_color="black",
+            anchor="w"
+        )
+
+        # Spotify button
+        self.spotify_button = ctk.CTkButton(
+            master,
+            text="Spotify",
+            command=self._open_spotify,
+        )
+
+        album_artwork.pack(side="left", padx=self.pad_size, pady=self.pad_size)
+        title_label.pack(anchor="w")
+        artist_label.pack(anchor="w")
+        self.spotify_button.pack(anchor="w")
+
+
+    def _open_spotify(self):
+        if self.verbose:
+            print("Opening Spotify...")
+        webbrowser.open(url=self.spotify_result["track_url"])
 
 
 class GradientFrame(tk.Canvas):
