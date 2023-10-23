@@ -4,7 +4,6 @@ import tkinter as tk
 import webbrowser
 import urllib.request
 import threading
-import time
 from PIL import Image
 from src.spotify import search_spotify
 from src.visual_LLM import image_to_text
@@ -106,8 +105,19 @@ class App(ctk.CTk):
             corner_radius=self.corner_radius,
             fg_color="black",
             bg_color="yellow"
-        ) 
+        )
         image_label.pack(expand=True, padx=self.pad_size, pady=self.pad_size)
+
+        change_button = ctk.CTkButton(
+            self.frame_top,
+            text="Upload image",
+            image=ctk.CTkImage(
+                Image.open("/Users/naoki/github/Rutilea/img/refresh.jpg"),
+                size=(36,30),
+            ),
+            command=self._upload_image,
+        )
+        change_button.pack(padx=self.pad_size, pady=self.pad_size)
 
 
     def create_middle_widgets(self):
@@ -186,7 +196,8 @@ class App(ctk.CTk):
     
     def _update_music(self, file_path):
 
-        print("processing!")
+        if self.verbose:
+            print("processing!")
 
         # Suggest some music which fits to the atmosphere of given image
         music_list = image_to_text(file_path)
@@ -292,6 +303,6 @@ class ProcessingWindow(ctk.CTkToplevel):
 
 if __name__ == "__main__":
 
-    ctk.set_appearance_mode("Dark")
+    # ctk.set_appearance_mode("Dark")
     app = App()
     app.mainloop()
