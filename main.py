@@ -110,7 +110,7 @@ class App(ctk.CTk):
 
         change_button = ctk.CTkButton(
             self.frame_top,
-            text="Upload image",
+            text="Refresh image",
             image=ctk.CTkImage(
                 Image.open("/Users/naoki/github/Rutilea/img/refresh.jpg"),
                 size=(36,30),
@@ -122,10 +122,26 @@ class App(ctk.CTk):
 
     def create_middle_widgets(self):
 
+        # tabview TEST
+        self.tabview = ctk.CTkTabview(self.frame_middle)
+        self.tabview.pack(padx=self.pad_size, pady=self.pad_size)
+
+        self.tabview.add("Music 1")
+        self.tabview.add("Music 2")
+        self.tabview.add("Music 3")
+        self.tabview.set("Music 1")
+
+        self.tabview.pack(fill="x")
+
         # Upadate artwork data
         self.dst_path = "img/artwork.jpg"
         urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
         self.album_file = Image.open(self.dst_path)
+
+        self.create_music_view(tab=self.tabview.tab("Music 1"))
+
+    
+    def create_music_view(self, tab):
 
         # ---- Album artwork ----
         self.album_img = ctk.CTkImage(
@@ -133,7 +149,7 @@ class App(ctk.CTk):
             size=(160,160)
         )
         album_artwork = ctk.CTkLabel(
-            self.frame_middle,
+            tab,
             image=self.album_img,
             text="",
             corner_radius=self.corner_radius,
@@ -142,14 +158,14 @@ class App(ctk.CTk):
 
         # ---- Name of track & artist ----
         title_label = ctk.CTkLabel(
-            self.frame_middle,
+            tab,
             text=self.spotify_result["track_name"],
             font=ctk.CTkFont(family=self.font_family, size=20),
             text_color="black",
             anchor="w"
         )
         artist_label = ctk.CTkLabel(
-            self.frame_middle,
+            tab,
             text=self.spotify_result["artist_name"],
             font=ctk.CTkFont(family=self.font_family),
             text_color="black",
@@ -158,7 +174,7 @@ class App(ctk.CTk):
 
         # Spotify button
         self.spotify_button = ctk.CTkButton(
-            self.frame_middle,
+            tab,
             text="Spotify",
             command=self._open_spotify,
         )
