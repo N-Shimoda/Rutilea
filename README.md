@@ -12,6 +12,7 @@ Run following command in your terminal. Program should be ran in top directory (
 - `src`
     + `spotify.py`
     + `visual_LLM.py`
+    + `image_tools.py`
 - `img` : Directory to store artwork image while the app is runnning.
 - `experiments`
 

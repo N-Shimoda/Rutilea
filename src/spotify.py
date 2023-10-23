@@ -26,7 +26,8 @@ def search_spotify(name: str) -> tuple:
         # Artwork, name of track, name of artist
         artwork_url = results["tracks"]["items"][i]["album"]["images"][0]["url"]    # Usually, 'images' have more than 1 artwork.
 
-        track_name = results["tracks"]["items"][i]["album"]["name"]
+        # track_name = results["tracks"]["items"][i]["album"]["name"]
+        track_name = results["tracks"]["items"][i]["name"]
         track_URL = results["tracks"]["items"][i]["external_urls"]["spotify"]
         album_URL = results["tracks"]["items"][i]["album"]["external_urls"]["spotify"]
 

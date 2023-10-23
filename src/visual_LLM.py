@@ -1,12 +1,11 @@
 # import os
 # import openai
-from tempfile import NamedTemporaryFile
+# from tempfile import NamedTemporaryFile
 from langchain.agents import initialize_agent
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
+from langchain.output_parsers import NumberedListOutputParser, MarkdownListOutputParser
 from src.image_tools import ImageCaptionTool, ObjectDetectionTool
-
-from langchain.output_parsers import NumberedListOutputParser
 
 
 def image_to_text(image_path: str) -> list:
@@ -28,7 +27,7 @@ def image_to_text(image_path: str) -> list:
 
     llm = ChatOpenAI(
         openai_api_key="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",
-        temperature=0,
+        temperature=0.5,
         model_name="gpt-3.5-turbo"
     )
 
@@ -68,9 +67,15 @@ def response_to_list(response: str) -> list:
     list of music. Each music is represented by str, may contain artist name.
     """
 
-    # output_parser = CommaSeparatedListOutputParser()
+    # See if any numbered list exists in response
     output_parser = NumberedListOutputParser()
     result = output_parser.parse(response)
+
+    if not result:
+        output_parser = MarkdownListOutputParser()
+        result = output_parser.parse(response)
+
+    print(result)
     return result
 
 

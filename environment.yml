@@ -8,6 +8,7 @@ dependencies:
   - langchain
   - pytorch
   - transformers
+  - openai  # for ChatOpenAI
   - huggingface_hub   # Only used in `experiments`
   - spotipy
   - tkinter

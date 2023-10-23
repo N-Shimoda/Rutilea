@@ -185,15 +185,18 @@ class App(ctk.CTk):
             # Select a music which best fits to the atmosphere of given image
             music_list = image_to_text(file_path)
             if len(music_list) > 0:
-                self.spotify_result = search_spotify(music_list[0])
+                if search_spotify(music_list[0]) is not None:
+                    self.spotify_result = search_spotify(music_list[0])
 
-                # Reload artwork
-                urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
-                self.album_file = Image.open(self.dst_path)
+                    # Reload artwork
+                    urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
+                    self.album_file = Image.open(self.dst_path)
 
-                self.create_right_widgets()
+                    self.create_right_widgets()
+                else:
+                    print("No music found in Spotify. View updation cancelled.")
             else:
-                print("No tracks found, cancel view updation.")
+                print("LLM could not suggest music. View updation cancelled.")
 
 
     def _resized_image_size(self) -> tuple:
