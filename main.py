@@ -3,8 +3,9 @@ import customtkinter as ctk
 import tkinter as tk
 import webbrowser
 import urllib.request
-import threading
 from PIL import Image
+import threading
+import json
 from src.spotify import search_spotify
 from src.visual_LLM import image_to_text
 
@@ -29,7 +30,8 @@ class App(ctk.CTk):
         self.picture_img = None     # for avoiding initial error when activating App.
 
         # setting initial music as '勇者 by YOASOBI' 
-        self.spotify_result = {
+        self.spotify_result = [
+            {
             'artwork_url': 'https://i.scdn.co/image/ab67616d0000b273a9f9b6f07b43009f5b0216dc',
             'track_name': '勇者',
             'track_url': 'https://open.spotify.com/track/4LjIQmt1t6NjpM0tpttzjo',
@@ -37,6 +39,7 @@ class App(ctk.CTk):
             'artist_name': 'YOASOBI',
             'artist_url': 'https://open.spotify.com/artist/64tJ2EAv1R6UaZqc4iOCyj'
         }
+        ]
 
         # ---- Children ----
         self.create_menubar()
@@ -122,29 +125,37 @@ class App(ctk.CTk):
 
     def create_middle_widgets(self):
 
-        # tabview TEST
+        if self.verbose:
+            pretty_dict = json.dumps(self.spotify_result, indent=4, sort_keys=True)
+            print("Current Spotify results ({} items):".format( len(self.spotify_result)) )
+            print(pretty_dict)
+
+        # ---- Tabview ----
         self.tabview = ctk.CTkTabview(self.frame_middle)
         self.tabview.pack(padx=self.pad_size, pady=self.pad_size)
 
-        self.tabview.add("Music 1")
-        self.tabview.add("Music 2")
-        self.tabview.add("Music 3")
-        self.tabview.set("Music 1")
+        for i in range(len(self.spotify_result)):
+            self.tabview.add("Music {}".format(i+1))
 
+        self.tabview.set("Music 1")
         self.tabview.pack(fill="x")
 
-        # Upadate artwork data
-        self.dst_path = "img/artwork.jpg"
-        urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
-        self.album_file = Image.open(self.dst_path)
-
         # ---- Music View ----
-        music1 = MusicView(
-            master=self.tabview.tab("Music 1"),
-            album_file=self.album_file,
-            spotify_result=self.spotify_result
-        )
-        music1.pack()
+        for result in self.spotify_result:
+            i = self.spotify_result.index(result)
+
+            # download artwork
+            dst_path = "img/artwork_{}.jpg".format(i)
+            urllib.request.urlretrieve(result["artwork_url"], dst_path)
+            self.album_file = Image.open(dst_path)
+
+            
+            music_view = MusicView(
+                master=self.tabview.tab("Music {}".format(i+1)),
+                album_file=self.album_file,
+                spotify_result=result
+            )
+            music_view.pack()
 
 
     def create_bottom_widgets(self):
@@ -155,6 +166,7 @@ class App(ctk.CTk):
 
     def _upload_image(self):
 
+        # Ask the user to choose an image file
         file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
         print(file_path)
 
@@ -179,17 +191,21 @@ class App(ctk.CTk):
 
         # Suggest some music which fits to the atmosphere of given image
         music_list = image_to_text(file_path)
-        if len(music_list) > 0:
-            if search_spotify(music_list[0]) is not None:
-                self.spotify_result = search_spotify(music_list[0])
 
-                # Reload artwork
-                urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
-                self.album_file = Image.open(self.dst_path)
+        self.spotify_result = []
 
-            else:
-                print("No music found in Spotify. View updation cancelled.")
+        if len(music_list) > 0:     # LLM could suggest at least 1 piece of music
+
+            # Search suggeted musics in Spotify
+            for music in music_list:
+                result = search_spotify(music)
+                if result is not None:
+                    self.spotify_result.append(result)
+                else:
+                    print('"No music found in Spotify for "{}"'.format(music))
+
         else:
+            # LLM could not suggest any music
             print("LLM could not suggest music. View updation cancelled.")
 
         # Destroy processing view
@@ -233,6 +249,7 @@ class App(ctk.CTk):
 class MusicView(ctk.CTkFrame):
     
     def __init__(self, master=None, album_file=None, spotify_result=None):
+
         super().__init__(master)
 
         self.verbose = True
@@ -241,14 +258,20 @@ class MusicView(ctk.CTkFrame):
         self.font_family = "Helvetica"
 
         self.spotify_result = spotify_result
+        self.album_file = album_file
+
+        self.create_widgets()
+
+    
+    def create_widgets(self):
 
         # ---- Album artwork ----
         self.album_img = ctk.CTkImage(
-            light_image=album_file,
+            light_image=self.album_file,
             size=(160,160)
         )
         album_artwork = ctk.CTkLabel(
-            master,
+            self,
             image=self.album_img,
             text="",
             # corner_radius=self.corner_radius,
@@ -257,15 +280,15 @@ class MusicView(ctk.CTkFrame):
 
         # ---- Name of track & artist ----
         title_label = ctk.CTkLabel(
-            master,
-            text=spotify_result["track_name"],
+            self,
+            text=self.spotify_result["track_name"],
             font=ctk.CTkFont(family=self.font_family, size=20),
             text_color="black",
             anchor="w"
         )
         artist_label = ctk.CTkLabel(
-            master,
-            text=spotify_result["artist_name"],
+            self,
+            text=self.spotify_result["artist_name"],
             font=ctk.CTkFont(family=self.font_family),
             text_color="black",
             anchor="w"
@@ -273,7 +296,7 @@ class MusicView(ctk.CTkFrame):
 
         # Spotify button
         self.spotify_button = ctk.CTkButton(
-            master,
+            self,
             text="Spotify",
             command=self._open_spotify,
         )

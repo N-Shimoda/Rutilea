@@ -2,4 +2,4 @@ __pycache__
 .cache
 experiments/.cache
 
-img/artwork.jpg
+img/artwork_*.jpg
