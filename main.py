@@ -63,14 +63,10 @@ class App(ctk.CTk):
 
     def create_frames(self):
 
-        # ---- Define LEFT & RIGHT ----
-        self.frame_main = ctk.CTkFrame(self)
-        self.frame_main.pack(expand=True, fill="both")
-
-        # ---- RIGHT frame ----
-        self.frame_top = GradientFrame(self.frame_main, "black", "orange")
-        self.frame_middle = ctk.CTkFrame(self.frame_main, fg_color="white")
-        self.frame_bottom = ctk.CTkFrame(self.frame_main, fg_color="green")
+        # ---- Frames ----
+        self.frame_top = GradientFrame(self, "black", "orange")
+        self.frame_middle = ctk.CTkFrame(self, fg_color=("white", "gray"), height=300)
+        self.frame_bottom = ctk.CTkFrame(self, fg_color=("lightgreen", "green"))
 
         self.frame_top.pack(expand=True, fill="both")
         self.frame_middle.pack(fill="x")
@@ -83,7 +79,7 @@ class App(ctk.CTk):
     def create_widgets(self):
 
         # destroy current objects
-        frames = [obj for obj in self.frame_main.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
+        frames = [obj for obj in self.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
         for frame in frames:
             children = frame.winfo_children()
             for obj in children:
@@ -224,16 +220,19 @@ class App(ctk.CTk):
         """        
         image_width, image_height = self.picture_file.size
         self.update_idletasks()     # for avoiding initial error that window size loaded as (1,1)
+        
+        # Acquire size of top frame
         window_width = self.frame_top.winfo_width()
-        window_height = self.frame_top.winfo_height()
+        window_height = min(
+            self.frame_top.winfo_height(),
+            self.winfo_height() - 420   # 420px is the space for middl & bottom frames
+        )
 
         scale = min(window_width/image_width, window_height/image_height)
         if self.verbose:
             print("image size: {}".format(self.picture_file.size))
             print("window size: {}".format((window_width, window_height)))
             print("resizing image (scale = {})".format(scale))
-
-        # time.sleep(0.001)
 
         return (scale*image_width, scale*image_height)
 
@@ -287,14 +286,14 @@ class MusicView(ctk.CTkFrame):
             self,
             text=self.spotify_result["track_name"],
             font=ctk.CTkFont(family=self.font_family, size=20),
-            text_color="black",
+            text_color=("black", "cyan"),
             anchor="w"
         )
         artist_label = ctk.CTkLabel(
             self,
             text=self.spotify_result["artist_name"],
             font=ctk.CTkFont(family=self.font_family),
-            text_color="black",
+            text_color=("black", "white"),
             anchor="w"
         )
 
