@@ -1,20 +1,25 @@
-import customtkinter
+import customtkinter as ctk
+from tkinter import ttk
 
-class ToplevelWindow(customtkinter.CTkToplevel):
+class ToplevelWindow(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("400x300")
 
-        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        self.label = ctk.CTkLabel(self, text="ToplevelWindow")
         self.label.pack(padx=20, pady=20)
 
+        self.progress_bar = ctk.CTkProgressBar(self, mode="indeterminate", )
+        self.progress_bar.pack()
+        self.progress_bar.start()
 
-class App(customtkinter.CTk):
+
+class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("500x400")
 
-        self.button_1 = customtkinter.CTkButton(self, text="open toplevel", command=self.open_toplevel)
+        self.button_1 = ctk.CTkButton(self, text="open toplevel", command=self.open_toplevel)
         self.button_1.pack(side="top", padx=20, pady=20)
 
         self.toplevel_window = None

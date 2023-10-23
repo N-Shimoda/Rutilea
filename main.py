@@ -174,11 +174,7 @@ class App(ctk.CTk):
             self.picture_file = Image.open(file_path)
 
             # Show waiting view in GUI
-            self.sub = ctk.CTkToplevel(self)
-            self.progress_bar = ctk.CTkProgressBar(self.sub, mode="indeterminate")
-            self.progress_bar.pack()
-            self.progress_bar.start()
-
+            self.sub = ProcessingWindow()
             self.update()
 
             # Select appropriate music with LLM
@@ -208,12 +204,8 @@ class App(ctk.CTk):
             print("LLM could not suggest music. View updation cancelled.")
 
         # Destroy processing view
-        self.progress_bar.stop()
+        self.sub.progress_bar.stop()
         self.sub.destroy()
-
-
-    def _waiting_view(self):
-        pass
 
 
     def _resized_image_size(self) -> tuple:
@@ -282,6 +274,20 @@ class GradientFrame(tk.Canvas):
             color = "#%4.4x%4.4x%4.4x" % (nr,ng,nb)
             self.create_line(i,0,i,height, tags=("gradient",), fill=color)
         self.lower("gradient")
+
+
+class ProcessingWindow(ctk.CTkToplevel):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("400x300")
+
+        self.label = ctk.CTkLabel(self, text="LLM Processing...")
+        self.label.pack(padx=20, pady=20)
+
+        self.progress_bar = ctk.CTkProgressBar(self, mode="indeterminate")
+        self.progress_bar.pack()
+        self.progress_bar.start()
 
 
 if __name__ == "__main__":
