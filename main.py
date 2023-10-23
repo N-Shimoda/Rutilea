@@ -40,8 +40,7 @@ class App(ctk.CTk):
         # ---- Children ----
         self.create_menubar()
         self.create_frames()
-        self.create_left_widgets()
-        self.create_right_widgets()
+        self.create_widgets()
 
     
     def create_menubar(self):
@@ -61,36 +60,26 @@ class App(ctk.CTk):
     def create_frames(self):
 
         # ---- Define LEFT & RIGHT ----
-        self.frame_left = ctk.CTkFrame(self, fg_color="gray21")
-        self.frame_right = ctk.CTkFrame(self)
-
-        # self.frame_left.pack(side="left", fill="y")
-        self.frame_right.pack(side="right", expand=True, fill="both")
+        self.frame_main = ctk.CTkFrame(self)
+        self.frame_main.pack(side="right", expand=True, fill="both")
 
         # ---- RIGHT frame ----
-        # self.frame_top = ctk.CTkFrame(self.frame_right, fg_color="cyan")
-        self.frame_top = GradientFrame(self.frame_right, "black", "orange")
-        self.frame_middle = ctk.CTkFrame(self.frame_right, fg_color="white")
-        self.frame_bottom = ctk.CTkFrame(self.frame_right, fg_color="green")
+        # self.frame_top = ctk.CTkFrame(self.frame_main, fg_color="cyan")
+        self.frame_top = GradientFrame(self.frame_main, "black", "orange")
+        self.frame_middle = ctk.CTkFrame(self.frame_main, fg_color="white")
+        self.frame_bottom = ctk.CTkFrame(self.frame_main, fg_color="green")
 
         self.frame_top.pack(expand=True, fill="both")
         self.frame_middle.pack(fill="x")
         self.frame_bottom.pack(fill="x")
 
         self.frame_top.bind("<Configure>", self._configure_Cb)
-
-
-    def create_left_widgets(self):
-        # ---- LEFT frame ----
-        # button
-        self.upload_button = ctk.CTkButton(self.frame_left, text="+", command=self._upload_image)
-        self.upload_button.pack(side="bottom", anchor="e")
     
 
-    def create_right_widgets(self):
+    def create_widgets(self):
 
         # destroy current objects in RIGHT frame
-        frames = [obj for obj in self.frame_right.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
+        frames = [obj for obj in self.frame_main.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
         for frame in frames:
             children = frame.winfo_children()
             for obj in children:
@@ -192,7 +181,7 @@ class App(ctk.CTk):
                     urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
                     self.album_file = Image.open(self.dst_path)
 
-                    self.create_right_widgets()
+                    self.create_widgets()
                 else:
                     print("No music found in Spotify. View updation cancelled.")
             else:
