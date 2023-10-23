@@ -134,9 +134,14 @@ class App(ctk.CTk):
         self.tabview = ctk.CTkTabview(self.frame_middle)
         self.tabview.pack(padx=self.pad_size, pady=self.pad_size)
 
-        for i in range(len(self.spotify_result)):
-            self.tabview.add("Music {}".format(i+1))
-
+        if self.spotify_result == []:   # case when no tracks found
+            self.tabview.add("Music 1")
+            label = ctk.CTkLabel(self.tabview.tab("Music 1"), text="Sorry, LLM or Spotify did not work well.\nPlease try again.")
+            label.pack()
+        else:
+            for i in range(len(self.spotify_result)):
+                self.tabview.add("Music {}".format(i+1))
+        
         self.tabview.set("Music 1")
         self.tabview.pack(fill="x")
 
@@ -149,7 +154,7 @@ class App(ctk.CTk):
             urllib.request.urlretrieve(result["artwork_url"], dst_path)
             self.album_file = Image.open(dst_path)
 
-            
+            # create widgets in each tabs
             music_view = MusicView(
                 master=self.tabview.tab("Music {}".format(i+1)),
                 album_file=self.album_file,
