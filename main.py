@@ -32,13 +32,13 @@ class App(ctk.CTk):
         # setting initial music as '勇者 by YOASOBI' 
         self.spotify_result = [
             {
-            'artwork_url': 'https://i.scdn.co/image/ab67616d0000b273a9f9b6f07b43009f5b0216dc',
-            'track_name': '勇者',
-            'track_url': 'https://open.spotify.com/track/4LjIQmt1t6NjpM0tpttzjo',
-            'album_url': 'https://open.spotify.com/album/6L7pjBfP49dh1WYDmHngOO',
-            'artist_name': 'YOASOBI',
-            'artist_url': 'https://open.spotify.com/artist/64tJ2EAv1R6UaZqc4iOCyj'
-        }
+                'artwork_url': 'https://i.scdn.co/image/ab67616d0000b273a9f9b6f07b43009f5b0216dc',
+                'track_name': '勇者',
+                'track_url': 'https://open.spotify.com/track/4LjIQmt1t6NjpM0tpttzjo',
+                'album_url': 'https://open.spotify.com/album/6L7pjBfP49dh1WYDmHngOO',
+                'artist_name': 'YOASOBI',
+                'artist_url': 'https://open.spotify.com/artist/64tJ2EAv1R6UaZqc4iOCyj'
+            }
         ]
 
         # ---- Children ----
@@ -207,11 +207,11 @@ class App(ctk.CTk):
                 if result is not None:
                     self.spotify_result.append(result)
                 else:
-                    print('"No music found in Spotify for "{}"'.format(music))
+                    print(colorize('"No music found in Spotify for "{}"'.format(music), 31))
 
         else:
             # LLM could not suggest any music
-            print("LLM could not suggest music. View updation cancelled.")
+            print(colorize("LLM could not suggest music. View updation cancelled.", 31))
 
         # Destroy processing view
         self.sub.progress_bar.stop()
@@ -250,7 +250,6 @@ class App(ctk.CTk):
         self.frame_top._draw_gradient(e)
 
 
-
 class MusicView(ctk.CTkFrame):
     
     def __init__(self, master=None, album_file=None, spotify_result=None):
@@ -279,7 +278,7 @@ class MusicView(ctk.CTkFrame):
             self,
             image=self.album_img,
             text="",
-            # corner_radius=self.corner_radius,
+            corner_radius=self.corner_radius,
             fg_color="black"
         )
 
@@ -351,8 +350,21 @@ class GradientFrame(tk.Canvas):
 class ProcessingWindow(ctk.CTkToplevel):
 
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
-        self.geometry("400x300")
+        self.title("Notice")
+
+        # ---- geometry ----
+        width=300
+        height=200
+        x_pos = self.master.winfo_width()//2 - width//2
+        y_pos =  self.master.winfo_height()//2 - height//2
+        self.geometry("{}x{}+{}+{}".format(width, height, x_pos, y_pos))
+
+        # set as modal window
+        self.grab_set()        # モーダルにする
+        self.focus_set()       # フォーカスを新しいウィンドウをへ移す
+        self.transient(self.master)   # タスクバーに表示しない
 
         self.label = ctk.CTkLabel(self, text="LLM Processing...")
         self.label.pack(padx=20, pady=20)
@@ -360,6 +372,11 @@ class ProcessingWindow(ctk.CTkToplevel):
         self.progress_bar = ctk.CTkProgressBar(self, mode="indeterminate")
         self.progress_bar.pack()
         self.progress_bar.start()
+
+
+def colorize(text, color_code):
+    # see https://www.python.ambitious-engineer.com/archives/3721 for color selection
+    return f"\033[{color_code}m{text}\033[0m"
 
 
 if __name__ == "__main__":

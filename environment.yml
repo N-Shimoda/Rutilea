@@ -4,13 +4,15 @@ channels:
   - defaults
 dependencies:
   - python
+  - pip
+  - numpy
   - pillow
-  - langchain
   - pytorch
   - transformers
-  - openai  # for ChatOpenAI
+  - langchain
+  - openai
   - huggingface_hub   # Only used in `experiments`
   - spotipy
-  - tkinter
+  - tk
   - pip:
     - customtkinter
