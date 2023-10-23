@@ -3,6 +3,8 @@ import customtkinter as ctk
 import tkinter as tk
 import webbrowser
 import urllib.request
+import threading
+import time
 from PIL import Image
 from src.spotify import search_spotify
 from src.visual_LLM import image_to_text
@@ -61,10 +63,9 @@ class App(ctk.CTk):
 
         # ---- Define LEFT & RIGHT ----
         self.frame_main = ctk.CTkFrame(self)
-        self.frame_main.pack(side="right", expand=True, fill="both")
+        self.frame_main.pack(expand=True, fill="both")
 
         # ---- RIGHT frame ----
-        # self.frame_top = ctk.CTkFrame(self.frame_main, fg_color="cyan")
         self.frame_top = GradientFrame(self.frame_main, "black", "orange")
         self.frame_middle = ctk.CTkFrame(self.frame_main, fg_color="white")
         self.frame_bottom = ctk.CTkFrame(self.frame_main, fg_color="green")
@@ -73,12 +74,13 @@ class App(ctk.CTk):
         self.frame_middle.pack(fill="x")
         self.frame_bottom.pack(fill="x")
 
+        # for resizing image
         self.frame_top.bind("<Configure>", self._configure_Cb)
     
 
     def create_widgets(self):
 
-        # destroy current objects in RIGHT frame
+        # destroy current objects
         frames = [obj for obj in self.frame_main.winfo_children() if type(obj)==ctk.CTkFrame or type(obj)==GradientFrame]  # list of frames
         for frame in frames:
             children = frame.winfo_children()
@@ -171,21 +173,47 @@ class App(ctk.CTk):
         if file_path:
             self.picture_file = Image.open(file_path)
 
-            # Select a music which best fits to the atmosphere of given image
-            music_list = image_to_text(file_path)
-            if len(music_list) > 0:
-                if search_spotify(music_list[0]) is not None:
-                    self.spotify_result = search_spotify(music_list[0])
+            # Show waiting view in GUI
+            self.sub = ctk.CTkToplevel(self)
+            self.progress_bar = ctk.CTkProgressBar(self.sub, mode="indeterminate")
+            self.progress_bar.pack()
+            self.progress_bar.start()
 
-                    # Reload artwork
-                    urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
-                    self.album_file = Image.open(self.dst_path)
+            self.update()
 
-                    self.create_widgets()
-                else:
-                    print("No music found in Spotify. View updation cancelled.")
+            # Select appropriate music with LLM
+            thread = threading.Thread(target=self._update_music(file_path))
+            thread.start()
+
+            self.create_widgets()
+
+    
+    def _update_music(self, file_path):
+
+        print("processing!")
+
+        # Suggest some music which fits to the atmosphere of given image
+        music_list = image_to_text(file_path)
+        if len(music_list) > 0:
+            if search_spotify(music_list[0]) is not None:
+                self.spotify_result = search_spotify(music_list[0])
+
+                # Reload artwork
+                urllib.request.urlretrieve(self.spotify_result["artwork_url"], self.dst_path)
+                self.album_file = Image.open(self.dst_path)
+
             else:
-                print("LLM could not suggest music. View updation cancelled.")
+                print("No music found in Spotify. View updation cancelled.")
+        else:
+            print("LLM could not suggest music. View updation cancelled.")
+
+        # Destroy processing view
+        self.progress_bar.stop()
+        self.sub.destroy()
+
+
+    def _waiting_view(self):
+        pass
 
 
     def _resized_image_size(self) -> tuple:
