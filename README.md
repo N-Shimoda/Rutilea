@@ -16,11 +16,11 @@ conda env create -f environment.yml
 ### Prepare API
 Application uses following API keys to function. Please prepare them in advance.
 - OpenAI API key : for using GPT-3.5 as LLM in `src/visual_LLM.py`.
-- Spotify Client ID & Secret : for Spotify searching in `src/spotify.py`.
+- Spotify Client ID & Secret : for using Spotify API in `src/spotify.py`.
 
 ### Activation
 Run following command in your terminal. Program should be ran in the top directory (`Rutilea`).
-```bash:~/Rutilea
+```bash
 python gui.py
 ```
 
@@ -34,5 +34,5 @@ python gui.py
 - `environment.yml` : Requirements for conda environment.
 - `experiments` : Experiment projects used for development.
 
-## References
+## Reference
 - ["Ask questions to your images using LangChain and Python"](https://nayakpplaban.medium.com/ask-questions-to-your-images-using-langchain-and-python-1aeb30f38751), a Medium blog by Plaban Nayak
