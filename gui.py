@@ -66,13 +66,13 @@ class App(ctk.CTk):
         self.menu_view.add_cascade(label="Change theme", menu=self.menu_appearance_mode)
         self.menu_appearance_mode.add_radiobutton(
             label="light",
-            command=lambda: self._change_theme(mode_string="light"), 
+            command=lambda: ctk.set_appearance_mode("light"),
             variable=self.radio_val,
             value=0
         )
         self.menu_appearance_mode.add_radiobutton(
             label="dark",
-            command=lambda: self._change_theme(mode_string="dark"),
+            command=lambda: ctk.set_appearance_mode("dark"),
             variable=self.radio_val,
             value=1
         )
@@ -255,11 +255,6 @@ class App(ctk.CTk):
             print("resizing image (scale = {})".format(scale))
 
         return (scale*image_width, scale*image_height)
-
-
-    def _change_theme(self, mode_string) -> None:
-
-        ctk.set_appearance_mode(mode_string)
 
     
     def _configure_Cb(self, e):
