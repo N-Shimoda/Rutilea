@@ -182,7 +182,7 @@ class App(ctk.CTk):
                 album_file=self.album_file,
                 spotify_result=result
             )
-            music_view.pack(fill="x")
+            music_view.pack(expand=True, fill="x")
 
 
     def create_bottom_widgets(self):
@@ -295,7 +295,7 @@ class MusicView(ctk.CTkFrame):
     
     def __init__(self, master=None, album_file=None, spotify_result=None):
 
-        super().__init__(master, fg_color="red")
+        super().__init__(master)
 
         # ---- GUI settings ----
         self.verbose = True
@@ -313,10 +313,10 @@ class MusicView(ctk.CTkFrame):
     
     def create_frames(self):
         
-        self.artwork_frame = ctk.CTkFrame(self)
-        self.caption_frame = ctk.CTkScrollableFrame(self, orientation="horizontal")
+        self.artwork_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.caption_frame = ctk.CTkScrollableFrame(self, fg_color="transparent", orientation="horizontal")
 
-        self.artwork_frame.pack(side="left")
+        self.artwork_frame.pack(side="left", fill="y")
         self.caption_frame.pack(side="left", expand=True, fill="x")
 
     
@@ -358,8 +358,9 @@ class MusicView(ctk.CTkFrame):
             command=self._open_spotify,
         )
 
+        # ---- Packing ----
         album_artwork.pack(padx=self.pad_size, pady=self.pad_size)
-        title_label.pack(anchor="w")
+        title_label.pack(anchor="w", fill="x")
         artist_label.pack(anchor="w")
         self.spotify_button.pack(anchor="w")
 
