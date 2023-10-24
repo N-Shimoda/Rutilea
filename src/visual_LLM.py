@@ -7,7 +7,7 @@ from langchain.output_parsers import NumberedListOutputParser, MarkdownListOutpu
 from src.image_tools import ImageCaptionTool, ObjectDetectionTool
 
 
-def image_to_text(image_path: str) -> tuple:
+def image_to_music(image_path: str) -> tuple:
     """
     入力として受け取った画像に対し、画像の雰囲気に合った音楽名を返す関数。\n
     BLIPを利用した画像キャプションツールを使える LLM にプロンプトを入力し、返答させることで実装されている。
@@ -21,7 +21,7 @@ def image_to_text(image_path: str) -> tuple:
     Returns
     ----
     music_list: list
-        List of music. Each music is given as str.
+        List of music keywords. Each music keywords is given as str.
     response: str
         Final response from LLM agent.
     """
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     for filename in image_list:
 
-        result = image_to_text(filename)
+        result = image_to_music(filename)
         print(result)
 
         spec_report.append(len(result))

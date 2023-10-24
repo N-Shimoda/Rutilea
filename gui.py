@@ -221,7 +221,7 @@ class App(ctk.CTk):
 
         self.spotify_result = []
 
-        if len(music_list) > 0:     # LLM could suggest at least 1 piece of music
+        if len(music_list) > 0:     # when LLM could suggest at least 1 piece of music
 
             # Search suggeted musics in Spotify
             for music in music_list:
@@ -232,7 +232,7 @@ class App(ctk.CTk):
                     print(colorize('"No music found in Spotify for "{}"'.format(music), 31))
 
         else:
-            # LLM could not suggest any music
+            # when LLM could NOT suggest any music
             print(colorize("LLM could not suggest music. View updation cancelled.", 31))
 
         # Destroy processing view

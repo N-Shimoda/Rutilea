@@ -3,11 +3,28 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import os
 
 
-def search_spotify(name: str, verbose=False) -> tuple:
+def search_spotify(text: str, i=0, verbose=False) -> dict:
+    """
+    Function to search spotify.
+
+    Parameters
+    ----------
+    text: str
+    i: int
+        ヒットしたトラックのうち、何番目のものを出力するか。
+    verbose: bool
+
+    Returns
+    -------
+    result: dict
+    """
 
     # 環境変数にClient IDとClient Secretを設定する
     os.environ["SPOTIPY_CLIENT_ID"] = "295130f2a4764bc9a423387a20a3d84c"
     os.environ["SPOTIPY_CLIENT_SECRET"] = "a2e47ef747e24bc68809909c2105efda"
+
+    keywords = text_to_keywords(text)
+    name = " ".join(keywords)
 
     # Acquire matching tracks in Spotify
     spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
@@ -23,8 +40,6 @@ def search_spotify(name: str, verbose=False) -> tuple:
         # Report number of tracks
         if verbose:
             print("{} tracks found in Spotify!".format(results["tracks"]["total"]))
-        
-        i = 0   # for debugging
 
         # Artwork, name of track, name of artist
         artwork_url = results["tracks"]["items"][i]["album"]["images"][0]["url"]    # Usually, 'images' have more than 1 artwork.
@@ -47,9 +62,35 @@ def search_spotify(name: str, verbose=False) -> tuple:
         }
 
         return result
+    
+
+def text_to_keywords(text: str) -> list:
+    """
+    Function to convert text about music into keywords.
+    For example, if "'Moon River' by Audrey Hepburn" were given as input, the output will be a list ["Moon River", "Audrey Hepburn"].
+
+    Parameters
+    ----------
+    text: str
+
+    Returns
+    -------
+    keywords: list
+        A list of keywords. Each keywords are str type.
+    """
+
+    # replace " and '
+    cleaned_text = text.replace('"', '').replace("'", "")
+    
+    # split text with word "by"
+    keywords = cleaned_text.split("by")
+
+    return keywords
 
 
 if __name__ == "__main__":
 
-    info = search_spotify("Canon in D by Johann Pachelbel")
-    print(info)
+    text = "'Moon River' by Audrey Hepburn"
+    for i in range(5):
+        info = search_spotify(text, i=i, verbose=True)
+        print("\n{}th result:\n{}".format(i, info))
