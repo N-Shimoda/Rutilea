@@ -26,7 +26,10 @@ class App(ctk.CTk):
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
-        self.picture_img = None     # for avoiding initial error when activating App.
+        self.picture_img = None         # for avoiding initial error when activating App.
+        self.radio_val = tk.IntVar(     # variable for radio button (appearance mode)
+            value = ["Light", "Dark"].index(ctk.get_appearance_mode())
+        ) 
 
         # setting initial music as '勇者 by YOASOBI' 
         self.spotify_result = [
@@ -48,16 +51,34 @@ class App(ctk.CTk):
     
     def create_menubar(self):
         
+        # ---- Menus ----
         self.menubar = tk.Menu(self)
         self.menu_view = tk.Menu(self.menubar)
         self.menu_file = tk.Menu(self.menubar)
+        self.menu_appearance_mode = tk.Menu(self.menubar, tearoff=False)
+        
+        # ---- Menu hierarchy ----
         self.menubar.add_cascade(label="View", menu=self.menu_view)
         self.menubar.add_cascade(label="File", menu=self.menu_file)
-
-        # `file`
-        self.menu_file.add_command(label="Open image", command=self._upload_image, accelerator="Cmd+O")
-        
         self.config(menu=self.menubar)
+
+        # ---- View menu ----
+        self.menu_view.add_cascade(label="Change theme", menu=self.menu_appearance_mode)
+        self.menu_appearance_mode.add_radiobutton(
+            label="light",
+            command=lambda: self._change_theme(mode_string="light"), 
+            variable=self.radio_val,
+            value=0
+        )
+        self.menu_appearance_mode.add_radiobutton(
+            label="dark",
+            command=lambda: self._change_theme(mode_string="dark"),
+            variable=self.radio_val,
+            value=1
+        )
+
+        # ---- File menu ----
+        self.menu_file.add_command(label="Open image", command=self._upload_image, accelerator="Cmd+O")
 
 
     def create_frames(self):
@@ -236,6 +257,11 @@ class App(ctk.CTk):
         return (scale*image_width, scale*image_height)
 
 
+    def _change_theme(self, mode_string) -> None:
+
+        ctk.set_appearance_mode(mode_string)
+
+    
     def _configure_Cb(self, e):
         # update the size of image
         if self.picture_img is not None:
@@ -373,12 +399,23 @@ class ProcessingWindow(ctk.CTkToplevel):
 
 
 def colorize(text, color_code):
-    # see https://www.python.ambitious-engineer.com/archives/3721 for color selection
+    """
+    Function to colorize a given text.  
+    See https://www.python.ambitious-engineer.com/archives/3721 for color selection.
+
+    Parameters
+    ----------
+    text: str
+    color_code: int
+
+    Returns
+    -------
+    given text with color information: str
+    """
     return f"\033[{color_code}m{text}\033[0m"
 
 
 if __name__ == "__main__":
 
-    # ctk.set_appearance_mode("Dark")
     app = App()
     app.mainloop()
