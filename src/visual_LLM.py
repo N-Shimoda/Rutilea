@@ -7,13 +7,23 @@ from langchain.output_parsers import NumberedListOutputParser, MarkdownListOutpu
 from src.image_tools import ImageCaptionTool, ObjectDetectionTool
 
 
-def image_to_text(image_path: str) -> list:
+def image_to_text(image_path: str) -> tuple:
     """
-    入力として受け取った画像に対し、画像の雰囲気に合った音楽名を返す関数。
+    入力として受け取った画像に対し、画像の雰囲気に合った音楽名を返す関数。\n
+    BLIPを利用した画像キャプションツールを使える LLM にプロンプトを入力し、返答させることで実装されている。
+    この際の LLM の回答の全文が第2返数 `response` である。
+
+    Parameter
+    ---------
+    image_path: str
+        入力画像ファイルのパス。
 
     Returns
     ----
-    List of music. Each music is given as str.
+    music_list: list
+        List of music. Each music is given as str.
+    response: str
+        Final response from LLM agent.
     """
     #initialize the agent
     tools = [ImageCaptionTool(), ObjectDetectionTool()]
@@ -50,7 +60,9 @@ def image_to_text(image_path: str) -> list:
     print(user_question)
     print(response)
 
-    return response_to_list(response)
+    music_list = response_to_list(response)
+
+    return music_list, response
 
 
 def response_to_list(response: str) -> list:

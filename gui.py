@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+import tkinter.messagebox
 import webbrowser
 import urllib.request
 from PIL import Image
@@ -21,15 +22,18 @@ class App(ctk.CTk):
         self.geometry("500x750")
         self.title("Music from image")
 
-        # ---- Variables ----
+        # ---- GUI variable ----
         self.picture_file = Image.open("/Users/naoki/Desktop/img/suits_dining_scene.jpg")
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
+
+        # ---- Variable ----
         self.picture_img = None         # for avoiding initial error when activating App.
         self.radio_val = tk.IntVar(     # variable for radio button (appearance mode)
             value = ["Light", "Dark"].index(ctk.get_appearance_mode())
         ) 
+        self.llm_response = "No response yet. Please upload an image first."
 
         # setting initial music as '勇者 by YOASOBI' 
         self.spotify_result = [
@@ -112,7 +116,7 @@ class App(ctk.CTk):
 
     def create_top_widgets(self):
 
-        # display image with a CTkLabel
+        # ---- Picture ----
         self.picture_img = ctk.CTkImage(
             light_image=self.picture_file,
             size = self._resized_image_size(),
@@ -126,7 +130,9 @@ class App(ctk.CTk):
             bg_color="yellow"
         )
         image_label.pack(expand=True, padx=self.pad_size, pady=self.pad_size)
+        image_label.bind("<Button-2>", self._show_popup)
 
+        # ---- Refresh button ----
         change_button = ctk.CTkButton(
             self.frame_top,
             text="Refresh image",
@@ -211,7 +217,7 @@ class App(ctk.CTk):
             print("processing!")
 
         # Suggest some music which fits to the atmosphere of given image
-        music_list = image_to_text(file_path)
+        music_list, self.llm_response = image_to_text(file_path)
 
         self.spotify_result = []
 
@@ -257,6 +263,22 @@ class App(ctk.CTk):
         return (scale*image_width, scale*image_height)
 
     
+    def _show_popup(self, e):
+
+        # ---- pop-up menu ----
+        popup_top = tk.Menu(self.frame_top)
+        popup_info = tk.Menu(popup_top)
+
+        popup_top.add_cascade(label="info", menu=popup_info)
+
+        popup_info.add_command(
+            label="Show comments by agent",
+            command=(lambda: tkinter.messagebox.showinfo("Comments by LLM", self.llm_response))
+        )
+
+        popup_top.post(e.x_root, e.y_root)
+
+
     def _configure_Cb(self, e):
         # update the size of image
         if self.picture_img is not None:
