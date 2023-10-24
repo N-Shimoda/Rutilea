@@ -7,7 +7,7 @@ from PIL import Image
 import threading
 import json
 from src.spotify import search_spotify
-from src.visual_LLM import image_to_text
+from src.visual_LLM import image_to_music
 
 class App(ctk.CTk):
 
@@ -125,9 +125,8 @@ class App(ctk.CTk):
             self.frame_top,
             image=self.picture_img,
             text="",
-            corner_radius=self.corner_radius,
-            fg_color="black",
-            bg_color="yellow"
+            # corner_radius=self.corner_radius,
+            # bg_color="transparent"
         )
         image_label.pack(expand=True, padx=self.pad_size, pady=self.pad_size)
         image_label.bind("<Button-2>", self._show_popup)
@@ -217,7 +216,7 @@ class App(ctk.CTk):
             print("processing!")
 
         # Suggest some music which fits to the atmosphere of given image
-        music_list, self.llm_response = image_to_text(file_path)
+        music_list, self.llm_response = image_to_music(file_path)
 
         self.spotify_result = []
 
@@ -331,8 +330,7 @@ class MusicView(ctk.CTkFrame):
             self.artwork_frame,
             image=self.album_img,
             text="",
-            corner_radius=self.corner_radius,
-            fg_color="black"
+            corner_radius=self.corner_radius
         )
 
         # ---- Name of track & artist ----
