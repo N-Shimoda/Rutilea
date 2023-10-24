@@ -33,7 +33,7 @@ class App(ctk.CTk):
         self.radio_val = tk.IntVar(     # variable for radio button (appearance mode)
             value = ["Light", "Dark"].index(ctk.get_appearance_mode())
         ) 
-        self.llm_response = "No response yet. Please upload an image first."
+        self.llm_response = "No response yet. \nPlease upload an image first."
 
         # setting initial music as '勇者 by YOASOBI' 
         self.spotify_result = [
@@ -182,7 +182,7 @@ class App(ctk.CTk):
                 album_file=self.album_file,
                 spotify_result=result
             )
-            music_view.pack()
+            music_view.pack(fill="x")
 
 
     def create_bottom_widgets(self):
@@ -295,17 +295,29 @@ class MusicView(ctk.CTkFrame):
     
     def __init__(self, master=None, album_file=None, spotify_result=None):
 
-        super().__init__(master)
+        super().__init__(master, fg_color="red")
 
+        # ---- GUI settings ----
         self.verbose = True
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
+        self.artwork_size = (160,160)
 
         self.spotify_result = spotify_result
         self.album_file = album_file
 
+        self.create_frames()
         self.create_widgets()
+
+    
+    def create_frames(self):
+        
+        self.artwork_frame = ctk.CTkFrame(self)
+        self.caption_frame = ctk.CTkScrollableFrame(self, orientation="horizontal")
+
+        self.artwork_frame.pack(side="left")
+        self.caption_frame.pack(side="left", expand=True, fill="x")
 
     
     def create_widgets(self):
@@ -313,10 +325,10 @@ class MusicView(ctk.CTkFrame):
         # ---- Album artwork ----
         self.album_img = ctk.CTkImage(
             light_image=self.album_file,
-            size=(160,160)
+            size=self.artwork_size
         )
         album_artwork = ctk.CTkLabel(
-            self,
+            self.artwork_frame,
             image=self.album_img,
             text="",
             corner_radius=self.corner_radius,
@@ -325,28 +337,28 @@ class MusicView(ctk.CTkFrame):
 
         # ---- Name of track & artist ----
         title_label = ctk.CTkLabel(
-            self,
+            self.caption_frame,
             text=self.spotify_result["track_name"],
             font=ctk.CTkFont(family=self.font_family, size=20),
             text_color=("black", "cyan"),
             anchor="w"
         )
         artist_label = ctk.CTkLabel(
-            self,
+            self.caption_frame,
             text=self.spotify_result["artist_name"],
             font=ctk.CTkFont(family=self.font_family),
             text_color=("black", "white"),
             anchor="w"
         )
 
-        # Spotify button
+        # ---- Spotify button ----
         self.spotify_button = ctk.CTkButton(
-            self,
+            self.caption_frame,
             text="Spotify",
             command=self._open_spotify,
         )
 
-        album_artwork.pack(side="left", padx=self.pad_size, pady=self.pad_size)
+        album_artwork.pack(padx=self.pad_size, pady=self.pad_size)
         title_label.pack(anchor="w")
         artist_label.pack(anchor="w")
         self.spotify_button.pack(anchor="w")
@@ -356,7 +368,7 @@ class MusicView(ctk.CTkFrame):
         if self.verbose:
             print("Opening Spotify...")
         webbrowser.open(url=self.spotify_result["track_url"])
-
+        
 
 class GradientFrame(tk.Canvas):
     
