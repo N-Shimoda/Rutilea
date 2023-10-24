@@ -1,3 +1,5 @@
+# Following codes are from Medium blog.
+# See https://nayakpplaban.medium.com/ask-questions-to-your-images-using-langchain-and-python-1aeb30f38751 for precise information.
 from langchain.tools import BaseTool
 from transformers import BlipProcessor, BlipForConditionalGeneration, DetrImageProcessor, DetrForObjectDetection
 from PIL import Image

@@ -1,6 +1,5 @@
-# import os
-# import openai
-# from tempfile import NamedTemporaryFile
+# Following codes are BASED on a Medium blog.
+# See https://nayakpplaban.medium.com/ask-questions-to-your-images-using-langchain-and-python-1aeb30f38751 for details.
 from langchain.agents import initialize_agent
 from langchain.chat_models import ChatOpenAI
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
