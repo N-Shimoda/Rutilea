@@ -150,7 +150,7 @@ class App(ctk.CTk):
             self.frame_top,
             text="Refresh image",
             image=ctk.CTkImage(
-                Image.open("/Users/naoki/github/Rutilea/img/refresh.jpg"),
+                Image.open("img/refresh.jpg"),
                 size=(36,30),
             ),
             command=self._upload_image,
