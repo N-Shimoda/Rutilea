@@ -7,6 +7,7 @@ from PIL import Image
 import os
 import threading
 import json
+import openai
 from src.spotify import search_spotify
 from src.visual_LLM import image_to_music
 
@@ -199,6 +200,7 @@ class App(ctk.CTk):
 
         # Update API keys
         if (self.openai_api_key.get() != "" and self.spotify_client_id.get() != "" and self.spotify_client_secret.get() != ""):
+
             os.environ["OPENAI_API_KEY"] = self.openai_api_key.get()
             os.environ["SPOTIPY_CLIENT_ID"] = self.spotify_client_id.get()
             os.environ["SPOTIPY_CLIENT_SECRET"] = self.spotify_client_secret.get()
@@ -221,16 +223,7 @@ class App(ctk.CTk):
                 self.create_widgets()
         
         else:
-            login_window = LoginWindow(
-                openai_key     = self.openai_api_key,
-                spotify_id     = self.spotify_client_id,
-                spotify_secret = self.spotify_client_secret
-            )
-
-            # self.openai_api_key = login_window.get_keys()[0]
-            # self.spotify_client_id = login_window.get_keys()[1]
-            # self.spotify_client_secret = login_window.get_keys()[2]
-            # print(self.openai_api_key)
+            self._require_login()
 
     
     def _update_music(self, file_path):
@@ -239,7 +232,17 @@ class App(ctk.CTk):
             print("processing!")
 
         # Suggest some music which fits to the atmosphere of given image
-        music_list, self.llm_response = image_to_music(file_path)
+        try:
+            music_list, self.llm_response = image_to_music(file_path)
+        except openai.error.AuthenticationError as e:
+            print(colorize(e, 31))
+            tkinter.messagebox.showerror(
+                title="LLM Processing Error",
+                message="Something went wrong during LLM back process.\nPlease check your OpenAI API key at https://platform.openai.com/account/api-keys."
+            )
+            self._require_login()
+            return
+
 
         self.spotify_result = []
 
@@ -299,6 +302,15 @@ class App(ctk.CTk):
         )
 
         popup_top.post(e.x_root, e.y_root)
+
+    
+    def _require_login(self):
+        
+        login_window = LoginWindow(
+                openai_key     = self.openai_api_key,
+                spotify_id     = self.spotify_client_id,
+                spotify_secret = self.spotify_client_secret
+            )
 
 
     def _configure_Cb(self, e):
@@ -458,11 +470,14 @@ class LoginWindow(ctk.CTkToplevel):
         self.title("Log-in required")
 
         # ---- geometry ----
-        width=300
-        height=200
+        width=360
+        height=240
         x_pos = self.master.winfo_width()//2 - width//2
         y_pos =  self.master.winfo_height()//2 - height//2
         self.geometry("{}x{}+{}+{}".format(width, height, x_pos, y_pos))
+
+        # ---- Variable ----
+        self.pad_size = 8
 
         # set as modal window
         self.grab_set()        # モーダルにする
@@ -473,34 +488,36 @@ class LoginWindow(ctk.CTkToplevel):
         self.spotify_id = spotify_id
         self.spotify_secret = spotify_secret
         
+        self.frame = ctk.CTkFrame(self)
+        self.frame.pack(expand=True)
         self.create_widgets()
 
     
     def create_widgets(self):
 
         # OpenAI API key
-        openai_label = ctk.CTkLabel(self, text="OpenAI API key")
-        openai_entry = ctk.CTkEntry(self, textvariable=self.openai_key)
+        openai_label = ctk.CTkLabel(self.frame, text="OpenAI API key")
+        openai_entry = ctk.CTkEntry(self.frame, textvariable=self.openai_key)
 
         # Spotify Client ID & Client Secret
-        spotify_id_label = ctk.CTkLabel(self, text="Spotify Client ID")
-        spotify_secret_label = ctk.CTkLabel(self, text="Spotify Client Secret")
-        spotify_id_entry = ctk.CTkEntry(self, textvariable=self.spotify_id)
-        spotify_secret_entry = ctk.CTkEntry(self, textvariable=self.spotify_secret)
+        spotify_id_label = ctk.CTkLabel(self.frame, text="Spotify Client ID")
+        spotify_secret_label = ctk.CTkLabel(self.frame, text="Spotify Client Secret")
+        spotify_id_entry = ctk.CTkEntry(self.frame, textvariable=self.spotify_id)
+        spotify_secret_entry = ctk.CTkEntry(self.frame, textvariable=self.spotify_secret)
 
         # Finish button
-        finish_button = ctk.CTkButton(self, text="Finish", command=self.return_keys_to_master)
+        finish_button = ctk.CTkButton(self.frame, text="Finish", command=self.return_keys_to_master)
 
         # ---- packing -----
-        openai_label.grid(row=0, column=0)
-        spotify_id_label.grid(row=1, column=0)
-        spotify_secret_label.grid(row=2, column=0)
+        openai_label.grid(row=0, column=0, padx=self.pad_size, pady=self.pad_size)
+        spotify_id_label.grid(row=1, column=0, padx=self.pad_size, pady=self.pad_size)
+        spotify_secret_label.grid(row=2, column=0, padx=self.pad_size, pady=self.pad_size)
 
-        openai_entry.grid(row=0, column=1)
-        spotify_id_entry.grid(row=1, column=1)
-        spotify_secret_entry.grid(row=2, column=1)
+        openai_entry.grid(row=0, column=1, padx=self.pad_size, pady=self.pad_size)
+        spotify_id_entry.grid(row=1, column=1, padx=self.pad_size, pady=self.pad_size)
+        spotify_secret_entry.grid(row=2, column=1, padx=self.pad_size, pady=self.pad_size)
 
-        finish_button.grid(row=3, columnspan=2)
+        finish_button.grid(row=3, columnspan=2, padx=self.pad_size, pady=self.pad_size)
 
     
     def return_keys_to_master(self):
@@ -512,6 +529,7 @@ class LoginWindow(ctk.CTkToplevel):
         self.master.spotify_client_secret = self.spotify_secret
 
         self.destroy()
+        self.master._upload_image()
 
 
 def colorize(text, color_code):

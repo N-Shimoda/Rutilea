@@ -5,6 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.output_parsers import NumberedListOutputParser, MarkdownListOutputParser
 from src.image_tools import ImageCaptionTool, ObjectDetectionTool
+import os
 
 
 def image_to_music(image_path: str) -> tuple:
@@ -25,7 +26,12 @@ def image_to_music(image_path: str) -> tuple:
     response: str
         Final response from LLM agent.
     """
-    #initialize the agent
+    # check if OpenAI API key is provided
+    open_ai_api_key = os.getenv("OPENAI_API_KEY")
+    if not open_ai_api_key:
+        raise RuntimeError
+
+    # initialize the agent
     tools = [ImageCaptionTool(), ObjectDetectionTool()]
 
     conversational_memory = ConversationBufferWindowMemory(
@@ -35,7 +41,6 @@ def image_to_music(image_path: str) -> tuple:
     )
 
     llm = ChatOpenAI(
-        # openai_api_key="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",
         temperature=0.5,
         model_name="gpt-3.5-turbo"
     )
