@@ -26,15 +26,15 @@ class App(ctk.CTk):
         self.i = 0
 
         # GUI setting
-        self.picture_file = Image.open("/Users/naoki/Desktop/img/suits_dining_scene.jpg")
+        self.picture_file = Image.open("img/rugby_boys.jpg")
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
 
         # API keys
-        self.openai_api_key = ctk.StringVar()          # "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"
-        self.spotify_client_id = ctk.StringVar()       # "295130f2a4764bc9a423387a20a3d84c"
-        self.spotify_client_secret = ctk.StringVar()   # "a2e47ef747e24bc68809909c2105efda"
+        self.openai_api_key = ctk.StringVar()
+        self.spotify_client_id = ctk.StringVar(value="295130f2a4764bc9a423387a20a3d84c")
+        self.spotify_client_secret = ctk.StringVar(value="a2e47ef747e24bc68809909c2105efda")
 
         # back processing
         self.picture_img = None         # for avoiding initial error when activating App.
@@ -63,15 +63,17 @@ class App(ctk.CTk):
     
     def create_menubar(self):
         
-        # ---- Menus ----
+        # ---- Define menus ----
         self.menubar = tk.Menu(self)
         self.menu_view = tk.Menu(self.menubar)
         self.menu_file = tk.Menu(self.menubar)
+        self.menu_account = tk.Menu(self.menubar)
         self.menu_appearance_mode = tk.Menu(self.menubar, tearoff=False)
         
         # ---- Menu hierarchy ----
         self.menubar.add_cascade(label="View", menu=self.menu_view)
         self.menubar.add_cascade(label="File", menu=self.menu_file)
+        self.menubar.add_cascade(label="Account", menu=self.menu_account)
         self.config(menu=self.menubar)
 
         # ---- View menu ----
@@ -91,6 +93,12 @@ class App(ctk.CTk):
 
         # ---- File menu ----
         self.menu_file.add_command(label="Open image", command=self._upload_image, accelerator="Cmd+O")
+
+        # ---- Account menu (API keys) ----
+        self.menu_account.add_command(
+            label="API keys",
+            command=lambda: self._require_login(refresh_image=False)
+        )
 
 
     def create_frames(self):
@@ -223,7 +231,7 @@ class App(ctk.CTk):
                 self.create_widgets()
         
         else:
-            self._require_login()
+            self._require_login(refresh_image=True)
 
     
     def _update_music(self, file_path):
@@ -240,7 +248,8 @@ class App(ctk.CTk):
                 title="LLM Processing Error",
                 message="Something went wrong during LLM back process.\nPlease check your OpenAI API key at https://platform.openai.com/account/api-keys."
             )
-            self._require_login()
+            self._require_login(refresh_image=False)
+            self.sub.destroy()
             return
 
 
@@ -304,13 +313,14 @@ class App(ctk.CTk):
         popup_top.post(e.x_root, e.y_root)
 
     
-    def _require_login(self):
+    def _require_login(self, refresh_image):
         
         login_window = LoginWindow(
                 openai_key     = self.openai_api_key,
                 spotify_id     = self.spotify_client_id,
-                spotify_secret = self.spotify_client_secret
-            )
+                spotify_secret = self.spotify_client_secret,
+                refresh_image  = refresh_image
+        )
 
 
     def _configure_Cb(self, e):
@@ -463,7 +473,7 @@ class ProcessingWindow(ctk.CTkToplevel):
 
 class LoginWindow(ctk.CTkToplevel):
 
-    def __init__(self, openai_key: ctk.StringVar, spotify_id: ctk.StringVar, spotify_secret: ctk.StringVar):
+    def __init__(self, openai_key: ctk.StringVar, spotify_id: ctk.StringVar, spotify_secret: ctk.StringVar, refresh_image: bool):
 
         # ---- Root ----
         super().__init__()
@@ -487,6 +497,7 @@ class LoginWindow(ctk.CTkToplevel):
         self.openai_key = openai_key
         self.spotify_id = spotify_id
         self.spotify_secret = spotify_secret
+        self.refresh_image = refresh_image
         
         self.frame = ctk.CTkFrame(self)
         self.frame.pack(expand=True)
@@ -494,6 +505,10 @@ class LoginWindow(ctk.CTkToplevel):
 
     
     def create_widgets(self):
+
+        # ---- Labels & Entries ----
+        # Description
+        desc_label = ctk.CTkLabel(self.frame, text="Enter API keys.", anchor="w", font=("Helvetica", 16))
 
         # OpenAI API key
         openai_label = ctk.CTkLabel(self.frame, text="OpenAI API key")
@@ -508,16 +523,17 @@ class LoginWindow(ctk.CTkToplevel):
         # Finish button
         finish_button = ctk.CTkButton(self.frame, text="Finish", command=self.return_keys_to_master)
 
-        # ---- packing -----
-        openai_label.grid(row=0, column=0, padx=self.pad_size, pady=self.pad_size)
-        spotify_id_label.grid(row=1, column=0, padx=self.pad_size, pady=self.pad_size)
-        spotify_secret_label.grid(row=2, column=0, padx=self.pad_size, pady=self.pad_size)
+        # ---- Packing -----
+        desc_label.grid(row=0, columnspan=2, padx=self.pad_size, pady=self.pad_size)
+        openai_label.grid(row=1, column=0, padx=self.pad_size, pady=self.pad_size)
+        spotify_id_label.grid(row=2, column=0, padx=self.pad_size, pady=self.pad_size)
+        spotify_secret_label.grid(row=3, column=0, padx=self.pad_size, pady=self.pad_size)
 
-        openai_entry.grid(row=0, column=1, padx=self.pad_size, pady=self.pad_size)
-        spotify_id_entry.grid(row=1, column=1, padx=self.pad_size, pady=self.pad_size)
-        spotify_secret_entry.grid(row=2, column=1, padx=self.pad_size, pady=self.pad_size)
+        openai_entry.grid(row=1, column=1, padx=self.pad_size, pady=self.pad_size)
+        spotify_id_entry.grid(row=2, column=1, padx=self.pad_size, pady=self.pad_size)
+        spotify_secret_entry.grid(row=3, column=1, padx=self.pad_size, pady=self.pad_size)
 
-        finish_button.grid(row=3, columnspan=2, padx=self.pad_size, pady=self.pad_size)
+        finish_button.grid(row=4, columnspan=2, padx=self.pad_size, pady=self.pad_size)
 
     
     def return_keys_to_master(self):
@@ -529,7 +545,8 @@ class LoginWindow(ctk.CTkToplevel):
         self.master.spotify_client_secret = self.spotify_secret
 
         self.destroy()
-        self.master._upload_image()
+        if self.refresh_image:
+            self.master._upload_image()
 
 
 def colorize(text, color_code):
