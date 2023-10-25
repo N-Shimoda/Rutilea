@@ -199,9 +199,9 @@ class App(ctk.CTk):
 
         # Update API keys
         if (self.openai_api_key.get() != "" and self.spotify_client_id.get() != "" and self.spotify_client_secret.get() != ""):
-            os.environ["OPENAI_API_KEY"] = self.openai_api_key
-            os.environ["SPOTIPY_CLIENT_ID"] = self.spotify_client_id
-            os.environ["SPOTIPY_CLIENT_SECRET"] = self.spotify_client_secret
+            os.environ["OPENAI_API_KEY"] = self.openai_api_key.get()
+            os.environ["SPOTIPY_CLIENT_ID"] = self.spotify_client_id.get()
+            os.environ["SPOTIPY_CLIENT_SECRET"] = self.spotify_client_secret.get()
 
             # Ask the user to choose an image file
             file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
@@ -226,6 +226,11 @@ class App(ctk.CTk):
                 spotify_id     = self.spotify_client_id,
                 spotify_secret = self.spotify_client_secret
             )
+
+            # self.openai_api_key = login_window.get_keys()[0]
+            # self.spotify_client_id = login_window.get_keys()[1]
+            # self.spotify_client_secret = login_window.get_keys()[2]
+            # print(self.openai_api_key)
 
     
     def _update_music(self, file_path):
@@ -463,24 +468,28 @@ class LoginWindow(ctk.CTkToplevel):
         self.grab_set()        # モーダルにする
         self.focus_set()       # フォーカスを新しいウィンドウをへ移す
         self.transient(self.master)   # タスクバーに表示しない
+
+        self.openai_key = openai_key
+        self.spotify_id = spotify_id
+        self.spotify_secret = spotify_secret
         
-        self.create_widgets(openai_key, spotify_id, spotify_secret)
+        self.create_widgets()
 
     
-    def create_widgets(self, openai_key: ctk.StringVar, spotify_id: ctk.StringVar, spotify_secret: ctk.StringVar) -> None:
+    def create_widgets(self):
 
         # OpenAI API key
         openai_label = ctk.CTkLabel(self, text="OpenAI API key")
-        openai_entry = ctk.CTkEntry(self, textvariable=openai_key)
+        openai_entry = ctk.CTkEntry(self, textvariable=self.openai_key)
 
         # Spotify Client ID & Client Secret
         spotify_id_label = ctk.CTkLabel(self, text="Spotify Client ID")
         spotify_secret_label = ctk.CTkLabel(self, text="Spotify Client Secret")
-        spotify_id_entry = ctk.CTkEntry(self, textvariable=spotify_id)
-        spotify_secret_entry = ctk.CTkEntry(self, textvariable=spotify_secret)
+        spotify_id_entry = ctk.CTkEntry(self, textvariable=self.spotify_id)
+        spotify_secret_entry = ctk.CTkEntry(self, textvariable=self.spotify_secret)
 
         # Finish button
-        finish_button = ctk.CTkButton(self, text="Finish")
+        finish_button = ctk.CTkButton(self, text="Finish", command=self.return_keys_to_master)
 
         # ---- packing -----
         openai_label.grid(row=0, column=0)
@@ -492,6 +501,17 @@ class LoginWindow(ctk.CTkToplevel):
         spotify_secret_entry.grid(row=2, column=1)
 
         finish_button.grid(row=3, columnspan=2)
+
+    
+    def return_keys_to_master(self):
+        """
+        Update API keys to master frame (App) and destroy LoginWindow.
+        """
+        self.master.openai_api_key = self.openai_key
+        self.master.spotify_client_id = self.spotify_id
+        self.master.spotify_client_secret = self.spotify_secret
+
+        self.destroy()
 
 
 def colorize(text, color_code):
