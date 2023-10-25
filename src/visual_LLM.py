@@ -35,7 +35,7 @@ def image_to_music(image_path: str) -> tuple:
     )
 
     llm = ChatOpenAI(
-        openai_api_key="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",
+        # openai_api_key="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",
         temperature=0.5,
         model_name="gpt-3.5-turbo"
     )

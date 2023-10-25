@@ -4,6 +4,7 @@ import tkinter.messagebox
 import webbrowser
 import urllib.request
 from PIL import Image
+import os
 import threading
 import json
 from src.spotify import search_spotify
@@ -11,24 +12,30 @@ from src.visual_LLM import image_to_music
 
 class App(ctk.CTk):
 
-    def __init__(self):
+    def __init__(self, verbose=False):
 
-        # ---- Debugging ----
-        self.verbose = True
-        self.i = 0
-
-        # ---- Root ----
+        # ---- Root frame ----
         super().__init__()
         self.geometry("500x750")
         self.title("Music from image")
+        
+        # ---- Variables ----
+        # debugging
+        self.verbose = verbose
+        self.i = 0
 
-        # ---- GUI variable ----
+        # GUI setting
         self.picture_file = Image.open("/Users/naoki/Desktop/img/suits_dining_scene.jpg")
         self.pad_size = 14
         self.corner_radius = 18
         self.font_family = "Helvetica"
 
-        # ---- Variable ----
+        # API keys
+        self.openai_api_key = ctk.StringVar()          # "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"
+        self.spotify_client_id = ctk.StringVar()       # "295130f2a4764bc9a423387a20a3d84c"
+        self.spotify_client_secret = ctk.StringVar()   # "a2e47ef747e24bc68809909c2105efda"
+
+        # back processing
         self.picture_img = None         # for avoiding initial error when activating App.
         self.radio_val = tk.IntVar(     # variable for radio button (appearance mode)
             value = ["Light", "Dark"].index(ctk.get_appearance_mode())
@@ -125,8 +132,6 @@ class App(ctk.CTk):
             self.frame_top,
             image=self.picture_img,
             text="",
-            # corner_radius=self.corner_radius,
-            # bg_color="transparent"
         )
         image_label.pack(expand=True, padx=self.pad_size, pady=self.pad_size)
         image_label.bind("<Button-2>", self._show_popup)
@@ -192,22 +197,35 @@ class App(ctk.CTk):
 
     def _upload_image(self):
 
-        # Ask the user to choose an image file
-        file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
-        print(file_path)
+        # Update API keys
+        if (self.openai_api_key.get() != "" and self.spotify_client_id.get() != "" and self.spotify_client_secret.get() != ""):
+            os.environ["OPENAI_API_KEY"] = self.openai_api_key
+            os.environ["SPOTIPY_CLIENT_ID"] = self.spotify_client_id
+            os.environ["SPOTIPY_CLIENT_SECRET"] = self.spotify_client_secret
 
-        if file_path:
-            self.picture_file = Image.open(file_path)
+            # Ask the user to choose an image file
+            file_path = ctk.filedialog.askopenfilename(filetypes=[("画像ファイル", "*.jpg"), ("画像ファイル", "*.png")]) 
+            print(file_path)
 
-            # Show waiting view in GUI
-            self.sub = ProcessingWindow()
-            self.update()
+            if file_path:
+                self.picture_file = Image.open(file_path)
 
-            # Select appropriate music with LLM
-            thread = threading.Thread(target=self._update_music(file_path))
-            thread.start()
+                # Show waiting view in GUI
+                self.sub = ProcessingWindow()
+                self.update()
 
-            self.create_widgets()
+                # Select appropriate music with LLM
+                thread = threading.Thread(target=self._update_music(file_path))
+                thread.start()
+
+                self.create_widgets()
+        
+        else:
+            login_window = LoginWindow(
+                openai_key     = self.openai_api_key,
+                spotify_id     = self.spotify_client_id,
+                spotify_secret = self.spotify_client_secret
+            )
 
     
     def _update_music(self, file_path):
@@ -426,6 +444,56 @@ class ProcessingWindow(ctk.CTkToplevel):
         self.progress_bar.start()
 
 
+class LoginWindow(ctk.CTkToplevel):
+
+    def __init__(self, openai_key: ctk.StringVar, spotify_id: ctk.StringVar, spotify_secret: ctk.StringVar):
+
+        # ---- Root ----
+        super().__init__()
+        self.title("Log-in required")
+
+        # ---- geometry ----
+        width=300
+        height=200
+        x_pos = self.master.winfo_width()//2 - width//2
+        y_pos =  self.master.winfo_height()//2 - height//2
+        self.geometry("{}x{}+{}+{}".format(width, height, x_pos, y_pos))
+
+        # set as modal window
+        self.grab_set()        # モーダルにする
+        self.focus_set()       # フォーカスを新しいウィンドウをへ移す
+        self.transient(self.master)   # タスクバーに表示しない
+        
+        self.create_widgets(openai_key, spotify_id, spotify_secret)
+
+    
+    def create_widgets(self, openai_key: ctk.StringVar, spotify_id: ctk.StringVar, spotify_secret: ctk.StringVar) -> None:
+
+        # OpenAI API key
+        openai_label = ctk.CTkLabel(self, text="OpenAI API key")
+        openai_entry = ctk.CTkEntry(self, textvariable=openai_key)
+
+        # Spotify Client ID & Client Secret
+        spotify_id_label = ctk.CTkLabel(self, text="Spotify Client ID")
+        spotify_secret_label = ctk.CTkLabel(self, text="Spotify Client Secret")
+        spotify_id_entry = ctk.CTkEntry(self, textvariable=spotify_id)
+        spotify_secret_entry = ctk.CTkEntry(self, textvariable=spotify_secret)
+
+        # Finish button
+        finish_button = ctk.CTkButton(self, text="Finish")
+
+        # ---- packing -----
+        openai_label.grid(row=0, column=0)
+        spotify_id_label.grid(row=1, column=0)
+        spotify_secret_label.grid(row=2, column=0)
+
+        openai_entry.grid(row=0, column=1)
+        spotify_id_entry.grid(row=1, column=1)
+        spotify_secret_entry.grid(row=2, column=1)
+
+        finish_button.grid(row=3, columnspan=2)
+
+
 def colorize(text, color_code):
     """
     Function to colorize a given text.  
@@ -445,5 +513,5 @@ def colorize(text, color_code):
 
 if __name__ == "__main__":
 
-    app = App()
+    app = App(verbose=True)
     app.mainloop()
