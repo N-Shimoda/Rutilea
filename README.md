@@ -13,7 +13,7 @@ Entire application is implemented by Python. Before activation, create an enviro
 conda env create -f environment.yml
 ```
 
-### Prepare API
+### API keys
 Application uses following API keys to function. Please prepare them in advance.
 - OpenAI API key : for using GPT-3.5 as LLM in `src/visual_LLM.py`.
 - Spotify Client ID & Secret : for using Spotify API in `src/spotify.py`.
