@@ -6,6 +6,8 @@ A laptop application to suggest music based on the atmosphere of given image. Th
 ### Non-AI-native application engineering, Task 3
 > Developing an application that uses LLM to select music appropriate to the atmosphere of a given photograph. ([Google docs](https://docs.google.com/document/d/1BQRDnBziHUUKzwzlD68ZyD3Bq0XrTHt2dYSwgHeLGP8/edit))
 
+![Picture of application](img/application_view.png)
+
 ## Usage
 ### Setup
 Entire application is implemented by Python. Before activation, create an environment with `environment.yml`.
