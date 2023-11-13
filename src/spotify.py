@@ -20,8 +20,8 @@ def search_spotify(text: str, i=0, verbose=False) -> dict:
     """
 
     # 環境変数にClient IDとClient Secretを設定する
-    # os.environ["SPOTIPY_CLIENT_ID"] = "295130f2a4764bc9a423387a20a3d84c"
-    # os.environ["SPOTIPY_CLIENT_SECRET"] = "a2e47ef747e24bc68809909c2105efda"
+    # os.environ["SPOTIPY_CLIENT_ID"] = "enter client id here"
+    # os.environ["SPOTIPY_CLIENT_SECRET"] = "enter client secret here"
 
     keywords = text_to_keywords(text)
     name = " ".join(keywords)

@@ -32,9 +32,9 @@ class App(ctk.CTk):
         self.font_family = "Helvetica"
 
         # API keys
-        self.openai_api_key = ctk.StringVar()
+        self.openai_api_key = ctk.StringVar(value=os.getenv("OPENAI_API_KEY"))
         self.spotify_client_id = ctk.StringVar(value="295130f2a4764bc9a423387a20a3d84c")
-        self.spotify_client_secret = ctk.StringVar(value="a2e47ef747e24bc68809909c2105efda")
+        self.spotify_client_secret = ctk.StringVar(value=os.getenv("SPOTIPY_CLIENT_SECRET"))
 
         # back processing
         self.picture_img = None         # for avoiding initial error when activating App.
@@ -239,7 +239,7 @@ class App(ctk.CTk):
         if self.verbose:
             print("processing!")
 
-        # Suggest some music which fits to the atmosphere of given image
+        # Find the best music for given image, using LLM & image captioning tool
         try:
             music_list, self.llm_response = image_to_music(file_path)
         except openai.error.AuthenticationError as e:
@@ -251,22 +251,21 @@ class App(ctk.CTk):
             self._require_login(refresh_image=False)
             self.sub.destroy()
             return
-
-
+        
+        # Search Spotify for the suggested music
         self.spotify_result = []
 
-        if len(music_list) > 0:     # when LLM could suggest at least 1 piece of music
-
-            # Search suggeted musics in Spotify
+        if len(music_list) > 0:     
+            # When LLM could suggest at least 1 piece of music,
+            # search suggested musics in Spotify.
             for music in music_list:
                 result = search_spotify(music)
                 if result is not None:
                     self.spotify_result.append(result)
                 else:
                     print(colorize('"No music found in Spotify for "{}"'.format(music), 31))
-
         else:
-            # when LLM could NOT suggest any music
+            # When LLM could NOT suggest any music, just show error message.
             print(colorize("LLM could not suggest music. View updation cancelled.", 31))
 
         # Destroy processing view
@@ -348,9 +347,11 @@ class MusicView(ctk.CTkFrame):
         self.font_family = "Helvetica"
         self.artwork_size = (160,160)
 
+        # ---- Data and variables ----
         self.spotify_result = spotify_result
         self.album_file = album_file
 
+        # ---- Create GUI ----
         self.create_frames()
         self.create_widgets()
 
